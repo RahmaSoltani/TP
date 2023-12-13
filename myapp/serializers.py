@@ -7,6 +7,12 @@ from .models import Utilisateur, Moderateur, Admin
 from . import models
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from .documents import ArticleDocument
+import os
+import requests
+from PyPDF2 import PdfReader
+from rest_framework import serializers
+from django.conf import settings
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -170,3 +176,50 @@ class UtilisateurSerializer(serializers.ModelSerializer):
       instance.save()
 
       return instance
+
+class PDFTxtExtractionSerializer(serializers.Serializer):
+    pdf_url = serializers.URLField()
+
+    def extract_text_from_pdf(self, pdf_url):
+        try:
+            # Télécharger le fichier PDF
+            response = requests.get(pdf_url)
+            with open('temp.pdf', 'wb') as pdf_file:
+                pdf_file.write(response.content)
+
+            # Extraire le texte du PDF
+            text = ''
+            with open('temp.pdf', 'rb') as pdf_file:
+                pdf_reader = PdfReader(pdf_file)
+                for page_num in range(len(pdf_reader.pages)):
+                    page = pdf_reader.pages[page_num]
+                    text += page.extract_text()
+
+            return text
+
+        except Exception as e:
+            raise serializers.ValidationError(f"Une erreur s'est produite : {str(e)}")
+        finally:
+            # Assurez-vous de supprimer le fichier PDF temporaire
+            if os.path.exists('temp.pdf'):
+                os.remove('temp.pdf')
+
+    def validate(self, data):
+        pdf_url = data.get('pdf_url')
+
+        if not pdf_url:
+            raise serializers.ValidationError('Veuillez fournir une URL de fichier PDF')
+
+        # Appeler la fonction d'extraction de texte
+        text = self.extract_text_from_pdf(pdf_url)
+
+        # Enregistrez le texte dans un fichier texte dans le répertoire media de votre projet Django
+        file_path = os.path.join(settings.MEDIA_ROOT, 'texte_extrait.txt')
+
+        with open(file_path, 'w', encoding='utf-8') as txt_file:
+            txt_file.write(text)
+
+        # Retournez le chemin relatif du fichier texte dans le répertoire media
+        data['text_file'] = os.path.relpath(file_path, settings.MEDIA_ROOT)
+        return data
+
