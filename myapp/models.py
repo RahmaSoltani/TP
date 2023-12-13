@@ -33,6 +33,7 @@ class Article(models.Model):
     institutions = models.ManyToManyField(Institution)
     keywords = models.ManyToManyField(Keyword)
     text = models.TextField(null=True)
+    treated=models.BooleanField(default=False)
   #   text = models.TextField()
     pdf_url = models.URLField()
     references = models.ManyToManyField(Reference)
@@ -44,5 +45,5 @@ class Utilisateur(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name=models.CharField(null=True,unique=True,max_length=50)
     family_name=models.CharField(null=True,unique=True,max_length=50)
-#   favoris=models.ManyToManyField(documents.ArticleDocument,default=None)
+    favoris=models.ManyToManyField(Article,default=None)
 

@@ -75,6 +75,12 @@ class ArticleDocViewSet(DocumentViewSet):
     search_fields = (
         'title',
         'abstract',
+        'authors.name',
+        'institutions.name',
+        'keywords.name',
+        'references,citation',
+        
+
     )
     ordering_fields = {
         'date_created': 'date_created'
@@ -83,8 +89,8 @@ class ArticleDocViewSet(DocumentViewSet):
        'title',
        'abstract',    }
 
-class ArticleDocumentViewSet(DocumentViewSet):
-    document = ArticleDocument
+class ArticleDocumentViewSet(viewsets.ModelViewSet):
+    model=models.Article
     serializer_class = serializers.ArticleSerializer
 
 @api_view(['POST'])
