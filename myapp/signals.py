@@ -9,4 +9,9 @@ DEDConfig()
 @receiver(post_save, sender=Article)
 @receiver(post_delete, sender=Article)
 def update_article_index(sender, instance, **kwargs):
-    ArticleDocument().update(instance, index=custom_index_name)
+    article_document = ArticleDocument(meta={"id": str(instance.pk)})
+    article_document.title = instance.title
+    article_document.abstract = instance.abstract
+    # Set other fields as needed
+
+    article_document.save(index=custom_index_name)

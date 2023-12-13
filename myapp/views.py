@@ -36,7 +36,7 @@ class ModerateurViewSet(viewsets.ModelViewSet):
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = models.Admin.objects.all()
     serializer_class = serializers.AdminSerializer
-"""
+
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = models.Article.objects.all()
     serializer_class = serializers.ArticleSerializer
@@ -60,14 +60,14 @@ class InstitutionViewSet(viewsets.ModelViewSet):
 class RefrenceViewSet(viewsets.ModelViewSet):
     queryset = models.Reference.objects.all()
     serializer_class = serializers.ReferenceSerializer
-"""
+
 class ArticleDocViewSet(DocumentViewSet):
     def list(self, request, *args, **kwargs):
       response = super().list(request, *args, **kwargs)
       print(response.data)  
       return response
     document = ArticleDocument
-    serializer_class = serializers.ArticleSerializer
+    serializer_class = serializers.ArticleDocumentSerializer
     filter_backends = [
         OrderingFilterBackend,
         CompoundSearchFilterBackend,
@@ -79,7 +79,7 @@ class ArticleDocViewSet(DocumentViewSet):
         'institutions.name',
         'keywords.name',
         'references,citation',
-        
+
 
     )
     ordering_fields = {
@@ -89,9 +89,6 @@ class ArticleDocViewSet(DocumentViewSet):
        'title',
        'abstract',    }
 
-class ArticleDocumentViewSet(viewsets.ModelViewSet):
-    model=models.Article
-    serializer_class = serializers.ArticleSerializer
 
 @api_view(['POST'])
 #@permission_classes([IsAuthenticated])

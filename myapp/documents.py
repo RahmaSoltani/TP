@@ -1,6 +1,7 @@
-from elasticsearch_dsl import Document, Text, Keyword, Date, Nested
-from django_elasticsearch_dsl import fields
+
 from django_elasticsearch_dsl.registries import registry
+
+from django_elasticsearch_dsl import Document, Index, fields
 from .models import Article
 
 @registry.register_document
@@ -26,10 +27,10 @@ class ArticleDocument(Document):
         'citation': fields.TextField(),
     })
 
-    class Django:
-        model = Article
     class Index:
         name = 'article'
+    class Django:
+        model=Article
 
 """
 class ArticleDocument(Document):

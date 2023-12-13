@@ -116,8 +116,8 @@ class AdminSerializer(serializers.ModelSerializer):
 
       return instance
 
-class ArticleDocumentSerializer(DocumentSerializer):
-    class Meta:
+class ArticleDocumentSerializer(DocumentSerializer):   
+   class Meta:
         document=ArticleDocument
         fields = '__all__'
    

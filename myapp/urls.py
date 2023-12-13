@@ -8,14 +8,13 @@ router = DefaultRouter()
 router.register(r'moderateur', views.ModerateurViewSet)
 router.register(r'admin', views.AdminViewSet)
 router.register(r'user', views.UserViewSet)
-"""
+
 router.register(r'article', views.ArticleViewSet)
 router.register(r'refrence', views.RefrenceViewSet)
 router.register(r'author', views.AuthorViewSet)
 router.register(r'institution', views.InstitutionViewSet)
 router.register(r'keyword', views.KeywordViewSet)
-"""
-router.register(r'article', views.ArticleDocumentViewSet,basename='article')
+router.register(r'article', views.ArticleViewSet,basename='article')
 
 urlpatterns = [
     path('', include(router.urls)),
