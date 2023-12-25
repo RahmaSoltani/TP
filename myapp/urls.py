@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from myapp.views import ExtractTextFromPDFView
 
 router = DefaultRouter()
 
@@ -8,7 +9,6 @@ router = DefaultRouter()
 router.register(r'moderateur', views.ModerateurViewSet)
 router.register(r'admin', views.AdminViewSet)
 router.register(r'user', views.UserViewSet)
-
 router.register(r'search', views.ArticleDocViewSet,basename='search')
 router.register(r'article', views.ArticleViewSet)
 router.register(r'refrence', views.RefrenceViewSet)
@@ -22,6 +22,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
-
-    # Add other urlpatterns as needed
+    path('extract-text-from-pdf/', ExtractTextFromPDFView.as_view(), name='extract-text-from-pdf'),
 ]

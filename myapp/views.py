@@ -1,4 +1,8 @@
 # views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import PDFTxtExtractionSerializer
 from django_elasticsearch_dsl_drf.filter_backends import (
     CompoundSearchFilterBackend,
     OrderingFilterBackend,
@@ -150,3 +154,13 @@ def logout(request):
         return Response({"detail": "Logout successful"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"detail": f"Error during logout: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ExtractTextFromPDFView(APIView):
+    def post(self, request, format=None):
+        serializer = PDFTxtExtractionSerializer(data=request.data)
+
+        if serializer.is_valid():
+            return Response({'text_file': serializer.validated_data['text_file']}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
