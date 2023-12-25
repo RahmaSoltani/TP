@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'myapp',
 ]
 
+ELASTICSEARCH_INDEX_NAMES = {
+    'articles.article': 'articles',
+}
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': 'http://localhost:9200',

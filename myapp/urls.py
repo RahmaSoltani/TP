@@ -9,6 +9,7 @@ router.register(r'moderateur', views.ModerateurViewSet)
 router.register(r'admin', views.AdminViewSet)
 router.register(r'user', views.UserViewSet)
 
+router.register(r'search', views.ArticleDocViewSet,basename='search')
 router.register(r'article', views.ArticleViewSet)
 router.register(r'refrence', views.RefrenceViewSet)
 router.register(r'author', views.AuthorViewSet)

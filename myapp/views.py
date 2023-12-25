@@ -61,18 +61,14 @@ class RefrenceViewSet(viewsets.ModelViewSet):
     queryset = models.Reference.objects.all()
     serializer_class = serializers.ReferenceSerializer
 
-class ArticleDocViewSet(DocumentViewSet):
-    def list(self, request, *args, **kwargs):
-      response = super().list(request, *args, **kwargs)
-      print(response.data)  
-      return response
-    document = ArticleDocument
-    serializer_class = serializers.ArticleDocumentSerializer
-    filter_backends = [
+class ArticleDocViewSet(DocumentViewSet):  
+     document = ArticleDocument
+     serializer_class = serializers.ArticleDocumentSerializer
+     filter_backends = [
         OrderingFilterBackend,
         CompoundSearchFilterBackend,
-    ]
-    search_fields = (
+     ]
+     search_fields = (
         'title',
         'abstract',
         'authors.name',
@@ -81,11 +77,11 @@ class ArticleDocViewSet(DocumentViewSet):
         'references,citation',
 
 
-    )
-    ordering_fields = {
+     )
+     ordering_fields = {
         'date_created': 'date_created'
-    }
-    filter_fields = {
+     }
+     filter_fields = {
        'title',
        'abstract',    }
 
