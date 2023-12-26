@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'elasticsearch',
     'django_elasticsearch_dsl_drf',
     'myapp',
+    'drf_pdf',
 ]
 
 ELASTICSEARCH_INDEX_NAMES = {

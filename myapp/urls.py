@@ -23,4 +23,5 @@ urlpatterns = [
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
     path('extract-text-from-pdf/', ExtractTextFromPDFView.as_view(), name='extract-text-from-pdf'),
+    path('extract_pdf_content/', views.extract_first_word_from_pdf_url, name='extract-pdf-content'),
 ]
