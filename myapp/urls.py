@@ -5,7 +5,7 @@ from myapp.views import ExtractTextFromPDFView
 
 router = DefaultRouter()
 
-#router.register(r'utilisateur', views.UtilisateurViewSet)
+router.register(r'utilisateur', views.UtilisateurViewSet)
 router.register(r'moderateur', views.ModerateurViewSet)
 router.register(r'admin', views.AdminViewSet)
 router.register(r'user', views.UserViewSet)
@@ -15,7 +15,6 @@ router.register(r'refrence', views.RefrenceViewSet)
 router.register(r'author', views.AuthorViewSet)
 router.register(r'institution', views.InstitutionViewSet)
 router.register(r'keyword', views.KeywordViewSet)
-router.register(r'utilisateur', views.UtilisateurViewSet,basename='article')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -23,5 +22,5 @@ urlpatterns = [
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
     path('extract-text-from-pdf/', ExtractTextFromPDFView.as_view(), name='extract-text-from-pdf'),
-    path('extract_pdf_content/', views.extract_first_word_from_pdf_url, name='extract-pdf-content'),
+#    path('extract_pdf_content/', views.extract_first_word_from_pdf_url, name='extract-pdf-content'),
 ]

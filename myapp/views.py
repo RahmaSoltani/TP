@@ -173,12 +173,12 @@ class ExtractTextFromPDFView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-import requests
-from PyPDF2 import PdfFileReader
-from PyPDF2 import PdfFileReader
-import requests
 """
+import requests
+from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfFileReader
+import requests
+
 @api_view(['POST', 'GET'])
 def extract_text_from_pdf_url(request):
     url= request.data.get('url')
@@ -212,7 +212,7 @@ def extract_text_from_pdf_url(request):
 
     except Exception as e:
         return Response({'error': f'Error extracting text from PDF: {str(e)}'}, status=500)
-"""
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from PyPDF2 import PdfFileReader
@@ -274,7 +274,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
-"""
+
 class PDFHandler(APIView):
 
     renderer_classes = (PDFRenderer, JSONRenderer)
