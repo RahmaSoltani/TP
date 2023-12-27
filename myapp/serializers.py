@@ -12,6 +12,8 @@ import requests
 from PyPDF2 import PdfReader
 from rest_framework import serializers
 from django.conf import settings
+import re
+import json
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -177,19 +179,21 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 
       return instance
 
-class PDFTxtExtractionSerializer(serializers.Serializer):
-    pdf_url = serializers.URLField()
 
-    def extract_text_from_pdf(self, pdf_url):
-        try:
-            # Télécharger le fichier PDF
-            response = requests.get(pdf_url)
-            with open('temp.pdf', 'wb') as pdf_file:
-                pdf_file.write(response.content)
+
+
+class PDFTxtExtractionSerializer(serializers.Serializer):
+    pdf_path = serializers.CharField()
+
+    def extract_text_from_pdf(self, pdf_path):
+         try:
+            # Vérifiez si le fichier PDF existe
+            if not os.path.exists(pdf_path):
+                raise serializers.ValidationError('Le chemin du fichier PDF spécifié est invalide.')
 
             # Extraire le texte du PDF
             text = ''
-            with open('temp.pdf', 'rb') as pdf_file:
+            with open(pdf_path, 'rb') as pdf_file:
                 pdf_reader = PdfReader(pdf_file)
                 for page_num in range(len(pdf_reader.pages)):
                     page = pdf_reader.pages[page_num]
@@ -197,21 +201,17 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
 
             return text
 
-        except Exception as e:
+         except Exception as e:
             raise serializers.ValidationError(f"Une erreur s'est produite : {str(e)}")
-        finally:
-            # Assurez-vous de supprimer le fichier PDF temporaire
-            if os.path.exists('temp.pdf'):
-                os.remove('temp.pdf')
-
+        
     def validate(self, data):
-        pdf_url = data.get('pdf_url')
+        pdf_path = data.get('pdf_path')
 
-        if not pdf_url:
-            raise serializers.ValidationError('Veuillez fournir une URL de fichier PDF')
+        if not pdf_path:
+            raise serializers.ValidationError('Veuillez fournir un chemin vers un fichier PDF')
 
         # Appeler la fonction d'extraction de texte
-        text = self.extract_text_from_pdf(pdf_url)
+        text = self.extract_text_from_pdf(pdf_path)
 
         # Enregistrez le texte dans un fichier texte dans le répertoire media de votre projet Django
         file_path = os.path.join(settings.MEDIA_ROOT, 'texte_extrait.txt')
@@ -222,4 +222,3 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
         # Retournez le chemin relatif du fichier texte dans le répertoire media
         data['text_file'] = os.path.relpath(file_path, settings.MEDIA_ROOT)
         return data
-

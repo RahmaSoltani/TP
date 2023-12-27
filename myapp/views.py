@@ -168,6 +168,9 @@ class ExtractTextFromPDFView(APIView):
             return Response({'text_file': serializer.validated_data['text_file']}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 import requests
 from PyPDF2 import PdfFileReader
 from PyPDF2 import PdfFileReader
