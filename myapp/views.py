@@ -48,6 +48,9 @@ class AdminViewSet(viewsets.ModelViewSet):
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = models.Article.objects.all()
     serializer_class = serializers.ArticleSerializer
+class UtilisateurViewSet(viewsets.ModelViewSet):
+    queryset = models.Article.objects.all()
+    serializer_class = serializers.UtilisateurSerializer
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset=models.Author.objects.all()

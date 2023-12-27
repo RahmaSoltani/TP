@@ -15,7 +15,7 @@ router.register(r'refrence', views.RefrenceViewSet)
 router.register(r'author', views.AuthorViewSet)
 router.register(r'institution', views.InstitutionViewSet)
 router.register(r'keyword', views.KeywordViewSet)
-router.register(r'article', views.ArticleViewSet,basename='article')
+router.register(r'utilisateur', views.UtilisateurViewSet,basename='article')
 
 urlpatterns = [
     path('', include(router.urls)),
