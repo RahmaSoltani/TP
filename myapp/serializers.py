@@ -14,7 +14,7 @@ from rest_framework import serializers
 from django.conf import settings
 import re
 import json
-
+import io
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -188,44 +188,53 @@ class ModerateurSerializer(serializers.ModelSerializer):
 
 
 
-
 class PDFTxtExtractionSerializer(serializers.Serializer):
     pdf_path = serializers.CharField()
 
     def extract_text_from_pdf(self, pdf_path):
-         try:
-            # Vérifiez si le fichier PDF existe
-            if not os.path.exists(pdf_path):
-                raise serializers.ValidationError('Le chemin du fichier PDF spécifié est invalide.')
+        try:
+            # Check if the input is a URL or a local file path
+            if pdf_path.startswith(('http://', 'https://')):
+                # If it's a URL, download the PDF
+                response = requests.get(pdf_path)
+                response.raise_for_status()
+                pdf_content = response.content
 
-            # Extraire le texte du PDF
+            else:
+                # If it's a local file path, read the PDF file
+                if not os.path.exists(pdf_path):
+                    raise serializers.ValidationError('Invalid local file path specified for the PDF.')
+
+                with open(pdf_path, 'rb') as pdf_file:
+                    pdf_content = pdf_file.read()
+
+            # Extract text from the PDF content
             text = ''
-            with open(pdf_path, 'rb') as pdf_file:
-                pdf_reader = PdfReader(pdf_file)
-                for page_num in range(len(pdf_reader.pages)):
-                    page = pdf_reader.pages[page_num]
-                    text += page.extract_text()
+            pdf_reader = PdfReader(io.BytesIO(pdf_content))
+            for page_num in range(len(pdf_reader.pages)):
+                page = pdf_reader.pages[page_num]
+                text += page.extract_text()
 
             return text
 
-         except Exception as e:
-            raise serializers.ValidationError(f"Une erreur s'est produite : {str(e)}")
-        
+        except Exception as e:
+            raise serializers.ValidationError(f"An error occurred: {str(e)}")
+
     def validate(self, data):
         pdf_path = data.get('pdf_path')
 
         if not pdf_path:
-            raise serializers.ValidationError('Veuillez fournir un chemin vers un fichier PDF')
+            raise serializers.ValidationError('Please provide a path to a PDF file or a URL.')
 
-        # Appeler la fonction d'extraction de texte
+        # Call the text extraction function
         text = self.extract_text_from_pdf(pdf_path)
 
-        # Enregistrez le texte dans un fichier texte dans le répertoire media de votre projet Django
-        file_path = os.path.join(settings.MEDIA_ROOT, 'texte_extrait.txt')
+        # Save the text to a text file in the media directory of your Django project
+        file_path = os.path.join(settings.MEDIA_ROOT, 'extracted_text.txt')
 
         with open(file_path, 'w', encoding='utf-8') as txt_file:
             txt_file.write(text)
 
-        # Retournez le chemin relatif du fichier texte dans le répertoire media
+        # Return the relative path of the text file in the media directory
         data['text_file'] = os.path.relpath(file_path, settings.MEDIA_ROOT)
         return data
