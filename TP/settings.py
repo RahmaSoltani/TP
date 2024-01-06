@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,16 +64,7 @@ handler = logging.StreamHandler()
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+
 
 ROOT_URLCONF = 'TP.urls'
 
@@ -102,8 +94,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+
 }
+#DATABASE_ROUTERS = ["routers.db_routers.ArticleRouter"]
+
 """
 DATABASES = {
     'default': {
@@ -147,10 +142,57 @@ USE_I18N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000' # the URL of React frontend
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware", 
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware', 
+    "social_django.middleware.SocialAuthExceptionMiddleware", 
 
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'baraaassociation595@gmail.com'
+EMAIL_HOST_PASSWORD = 'agbdmmgxmwkqinfs'
+EMAIL_PORT = 587
+
+APPLICATION_EMAIL = 'baraaassociation595@gmail.com'
+DEFAULT_FROM_EMAIL = 'baraaassociation595@gmail.com'
+SMTP_USERNAME = 'Baraa_Association'
+SMTP_PASSWORD = 'agbdmmgxmwkqinfs'
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_PORT = 587
+SMTP_USE_TLS = True
+CORS_ORIGIN_ALLOW_ALL = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+"""
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ],
+   'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.AllowAny',
+    'rest_framework.permissions.IsAuthenticated',
+   ],
 
+}
+"""
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -167,9 +209,6 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+STATIC_URL = '/static/'
 
-CORS_ALLOW_HEADERS = [
-    'Content-Type',
-    'Authorization',
-    # Add other headers needed
-]
+

@@ -3,8 +3,12 @@ from django_elasticsearch_dsl.registries import registry
 
 from django_elasticsearch_dsl import Document, Index, fields
 from .models import Article
-
-@registry.register_document
+PUBLISHER_INDEX = Index('article')
+PUBLISHER_INDEX.settings(
+    number_of_shard=1,
+    number_of_replicas=1
+    )
+@PUBLISHER_INDEX.doc_type
 class ArticleDocument(Document):
     title = fields.TextField()
     abstract = fields.TextField()
@@ -29,7 +33,7 @@ class ArticleDocument(Document):
 
     class Index:
         name = 'article'
-    class Django:
+    class Django(object):
         model=Article
 
 """

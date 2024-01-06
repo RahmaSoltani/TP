@@ -21,6 +21,10 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
+    path('check_username/', views.check_username, name='check_username'),
+    path('check_email/', views.check_email, name='check_email'),
+    path('send_email/', views.send_email, name='send_email'),
+
     path('extract-text-from-pdf/', ExtractTextFromPDFView.as_view(), name='extract-text-from-pdf'),
-#    path('extract_pdf_content/', views.extract_first_word_from_pdf_url, name='extract-pdf-content'),
+    path('extract_pdf_content/', views.extract_specific_sections_from_pdf, name='extract-pdf-content'),
 ]

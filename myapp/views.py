@@ -48,8 +48,9 @@ class AdminViewSet(viewsets.ModelViewSet):
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = models.Article.objects.all()
     serializer_class = serializers.ArticleSerializer
+
 class UtilisateurViewSet(viewsets.ModelViewSet):
-    queryset = models.Article.objects.all()
+    queryset = models.Utilisateur.objects.all()
     serializer_class = serializers.UtilisateurSerializer
 
 class AuthorViewSet(viewsets.ModelViewSet):
@@ -57,7 +58,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AuthorSerializer
 
 class RefrenceViewSet(viewsets.ModelViewSet):
-    queryset=models.Institution.objects.all()
+    queryset=models.Institution.objects.using('article').all()
     serializer_class = serializers.ReferenceSerializer
 
 class KeywordViewSet(viewsets.ModelViewSet):
@@ -120,6 +121,7 @@ def login(request):
     username=request.data.get('username')
     password=request.data.get('password')
     user = authenticate(username=username, password=password)
+    id = user.id
     if user is not None:
         user_type = None
 
@@ -146,7 +148,7 @@ def login(request):
         access_token = str(refresh.access_token)
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-        return Response({'access_token': access_token,'user_type':user_type}, status=status.HTTP_200_OK)
+        return Response({'access_token': access_token,'user_type':user_type,'id':id}, status=status.HTTP_200_OK)
     else:
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -293,3 +295,148 @@ class PDFHandler(APIView):
             status=status.HTTP_200_OK
         )
 """
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import fitz  # PyMuPDF
+
+@api_view(['GET', 'POST'])
+@csrf_exempt
+def extract_text_from_pdf_view(request):
+    if request.method == 'POST':
+        pdf_url = request.data.get('pdf_url')  # Get the PDF URL from the POST data
+
+        try:
+            if pdf_url.startswith(('http://', 'https://')):
+                # Fetch the PDF file from the URL
+                response = requests.get(pdf_url)
+                response.raise_for_status()
+
+                # Open the PDF using PyMuPDF
+                pdf_document = fitz.open("pdf", response.content)
+
+            else:
+                # Open the local PDF file
+                with open(pdf_url, 'rb') as local_pdf:
+                    pdf_document = fitz.open("pdf", local_pdf.read())
+
+            # Extract text from each page
+            text_content = ""
+            for page_num in range(pdf_document.page_count):
+                page = pdf_document[page_num]
+                text_content += page.get_text()
+
+            # Close the PDF document
+            pdf_document.close()
+
+            return Response({'pdf_text': text_content})
+
+        except Exception as e:
+            return Response({'error': f"Error: {str(e)}"}, status=500)
+
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+import fitz
+import re
+@api_view(['POST'])
+@csrf_exempt
+def extract_specific_sections_from_pdf(request):
+    if request.method == 'POST':
+        pdf_url = request.data.get('pdf_url')
+
+        try:
+            if pdf_url.startswith(('http://', 'https://')):
+                # Fetch the PDF file from the URL
+                response = requests.get(pdf_url)
+                response.raise_for_status()
+                pdf_content = response.content
+            else:
+                # Open the local PDF file
+                with open(pdf_url, 'rb') as local_pdf:
+                    pdf_content = local_pdf.read()
+
+            # Open the PDF using PyMuPDF
+            pdf_document = fitz.open("pdf", pdf_content)
+
+            # Extract the abstract
+            abstract = ""
+            in_abstract = False
+            end_pattern = re.compile(r'\b(?:categories and subject descriptors|index terms|motivation and significance|ccs concepts|use cases|keywords|introduction)\b', re.IGNORECASE)
+
+            for page_num in range(pdf_document.page_count):
+                page = pdf_document[page_num]
+                blocks = page.get_text("blocks", clip=page.rect)
+
+                for block in blocks:
+                    text = block[4]  # The text content is at index 4
+
+                    # Check if the current text indicates the start of the abstract
+                    if re.search(r'\babstract\b|\bA B S T R A C T\b|\bABSTRACT\b', text, re.IGNORECASE):
+                        in_abstract = True
+
+                    # Check if the current text indicates the end of the abstract
+                    if in_abstract and end_pattern.search(text):
+                        abstract += text + ' '
+                        abstract = abstract.replace('\n', ' ').strip()
+                        abstract.save()
+                        return Response({'abstract': abstract})
+
+                    # Add text to the abstract if in the abstract section
+                    if in_abstract:
+                        abstract += text + ' '
+
+            # Remove unwanted characters within the abstract
+            abstract = abstract.replace('\n', ' ').strip()
+
+            # Close the PDF document
+            pdf_document.close()
+
+            return Response({'abstract': abstract})
+
+        except Exception as e:
+            return Response({'error': f"Error: {str(e)}"}, status=500)
+
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@api_view(['POST'])
+def check_username(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+
+        if User.objects.filter(username=username).exists():
+            return Response({'is_taken': True})
+        else:
+            return Response({'is_taken': False})
+
+    return Response({'error': 'Invalid request method'})
+@api_view(['POST'])
+def check_email(request):
+    if request.method == 'POST':
+        email = request.data.get('email')
+
+        if User.objects.filter(email=email).exists():
+            return Response({'is_taken': True})
+        else:
+            return Response({'is_taken': False})
+
+    return Response({'error': 'Invalid request method'})
+from django.core.mail import send_mail
+import random
+
+@api_view(['POST'])
+def send_email(request):
+ if request.method == 'POST':
+    email = request.data.get('email')
+    code= str(random.randint(100000, 999999))
+    subject = 'Confirmation Code'
+    message = f'Your confirmation code is: {code}'
+    from_email = 'baraaassociation595@gmail.com'  # Replace with your email
+    recipient_list = [email]
+
+    send_mail(subject, message, from_email, recipient_list)
+    return Response({'code':code})

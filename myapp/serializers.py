@@ -87,10 +87,17 @@ class AdminSerializer(serializers.ModelSerializer):
 
 class ArticleDocumentSerializer(DocumentSerializer):   
    class Meta:
+        model=models.Article
         document=ArticleDocument
         fields = '__all__'
-   
+        def get_location(self ,obj):
+          try:
+             return obj.location.to_dict()
+          except:
+              return{}
+       
 class ArticleSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = models.Article
         authors = AuthorSerializer(many=True)
