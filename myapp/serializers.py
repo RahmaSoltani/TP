@@ -245,3 +245,113 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
         # Return the relative path of the text file in the media directory
         data['text_file'] = os.path.relpath(file_path, settings.MEDIA_ROOT)
         return data
+
+
+
+
+class InfoExtractor(serializers.Serializer):
+    content = serializers.CharField()
+
+    def extract_info(self):
+        file_path = self.validated_data['content']
+        
+        if not os.path.exists(file_path):
+            return {"error": f"File not found: {file_path}"}
+
+        try:
+            # Lecture du contenu du fichier
+            with open(file_path, 'r', encoding='utf-8') as file:
+                file_content = file.read()
+        except Exception as e:
+            # Gérer d'autres erreurs de lecture du fichier
+            return {"error": str(e)}
+
+        expressions_a_supprimer = [
+            r'Interactive and Adaptable Media',
+            r'Advances in Engineering Software 188 \(2024\) 103568',
+            r'Advances in Engineering Software 188 \(2024\) 103571',
+            r'Research paper',
+            r'Contents lists available at ScienceDirect',
+            r'Advances in Engineering Software',
+            r'journal homepage: www.elsevier.com/locate/advengsoft',
+            r'Research paper',
+            r'2020 IEEE/ACM 42nd International Conference on Software Engineering Workshops \(ICSEW\)'
+        ]
+
+        for expression in expressions_a_supprimer:
+            file_content = re.sub(expression, '', file_content, flags=re.MULTILINE)
+
+        # Supprimer les sauts de ligne inutiles résultant de la suppression
+        file_content = re.sub(r'\n{2,}', '\n', file_content)
+        file_content = file_content.strip()
+
+        # Titre✅
+        title_match = re.search(r'^([^\n]+)', file_content)
+        title = title_match.group(1).strip() if title_match else None
+
+        # Auteurs✅
+        lines = file_content.split('\n')
+        authors = []
+
+        # Extract the first author(s) from the first line if it contains commas
+        first_author_match = re.match(r'^\s*([^@]+)\s*$', lines[1]) if len(lines) > 1 else None
+        if first_author_match and ',' in lines[1]:
+            authors.extend([author.strip() for author in first_author_match.group(1).split(',')])
+        elif first_author_match:
+            authors.append(first_author_match.group(1).strip())
+
+        # Extract other authors based on specified conditions
+        extracting_authors = False
+        for i in range(2, len(lines) - 1):  # Adjusted range to avoid going out of range
+            line = lines[i]
+            if 'Switzerland' in line or 'USA' in line:
+                if '@' not in lines[i + 1]:
+                    new_author = lines[i + 1].strip() if i + 1 < len(lines) else None
+                    if new_author and new_author not in authors:
+                        authors.append(new_author)  # Take the line after 'Switzerland' or 'USA' as an author
+                    extracting_authors = True
+            elif '@' in line and i + 1 < len(lines):  # Added check to avoid going out of range
+                new_author = lines[i + 1].strip()
+                if new_author not in authors:
+                    authors.append(new_author)  # Take the line after '@' as an author
+                extracting_authors = True
+            elif 'article info' in line.lower() or 'keywords' in line.lower() or 'abstract' in line.lower():
+                break  # Stop if 'article info', 'keywords', or 'abstract' is found
+            elif extracting_authors and i < len(lines):  # Added check to avoid going out of range
+                new_author = line.strip()
+                if new_author not in authors:
+                    authors.append(new_author)
+
+        # Institutions
+        institutions = []
+        for i in range(1, len(lines) - 1):  # Adjusted range to avoid going out of range
+            line = lines[i]
+            if '@' in line:
+                break  # Stop if '@' is found
+            else:
+                institutions.append(line.strip())
+
+        # Abstract✅
+        abstract_match = re.search(r'Abstract\n(.+?)\n', file_content, re.DOTALL)
+        abstract = abstract_match.group(1).strip() if abstract_match else None
+
+        # Keywords✅
+        keywords_match = re.search(r'(?:KEYWORDS|index terms): (.+?)(?:I.introduction|1|acm|abstract)',
+                                   file_content, re.IGNORECASE | re.DOTALL)
+        keywords = keywords_match.group(1).split(';') if keywords_match and keywords_match.group(1) else None
+        keywords = [kw.strip() for kw in keywords] if keywords else None
+
+        # References✅
+        references_match = re.search(r'References\n(.+?)(?=\n[^\[]|$)', file_content, re.DOTALL)
+        references = references_match.group(1).split('\n') if references_match and references_match.group(1) else None
+        references = [ref.strip() for ref in references] if references else None
+
+        return {
+            'content': file_content,
+            'title': title,
+            'authors': authors,
+            'institutions': institutions,
+            'abstract': abstract,
+            'keywords': keywords,
+            'references': references,
+        }

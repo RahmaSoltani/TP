@@ -7,6 +7,7 @@ import requests
 import PyPDF2
 from rest_framework import status
 from .serializers import PDFTxtExtractionSerializer
+from .serializers import InfoExtractor
 from django_elasticsearch_dsl_drf.filter_backends import (
     CompoundSearchFilterBackend,
     OrderingFilterBackend,
@@ -440,3 +441,13 @@ def send_email(request):
 
     send_mail(subject, message, from_email, recipient_list)
     return Response({'code':code})
+
+class ExtractInfoFromTextView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = InfoExtractor(data=request.data)
+
+        if serializer.is_valid():
+            extracted_info = serializer.extract_info()
+            return Response(extracted_info, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
