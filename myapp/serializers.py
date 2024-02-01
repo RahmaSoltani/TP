@@ -267,84 +267,110 @@ class InfoExtractor(serializers.Serializer):
             return {"error": str(e)}
 
         expressions_a_supprimer = [
-            r'Interactive and Adaptable Media',
-            r'Advances in Engineering Software 188 \(2024\) 103568',
-            r'Advances in Engineering Software 188 \(2024\) 103571',
-            r'Research paper',
-            r'Contents lists available at ScienceDirect',
-            r'Advances in Engineering Software',
-            r'journal homepage: www.elsevier.com/locate/advengsoft',
-            r'Research paper',
-            r'2020 IEEE/ACM 42nd International Conference on Software Engineering Workshops \(ICSEW\)'
-        ]
+        r'Interactive and Adaptable Media',
+        r'Advances in Engineering Software 188 \(2024\) 103568',
+        r'Advances in Engineering Software 188 \(2024\) 103571',
+        r'Research paper',
+        r'Contents lists available at ScienceDirect',
+        r'Advances in Engineering Software',
+        r'journal homepage: www.elsevier.com/locate/advengsoft',
+        r'Research paper',
+        r'2020 IEEE/ACM 42nd International Conference on Software Engineering Workshops \(ICSEW\)'
+    ]
 
         for expression in expressions_a_supprimer:
-            file_content = re.sub(expression, '', file_content, flags=re.MULTILINE)
+         file_content = re.sub(expression, '', file_content, flags=re.MULTILINE)
+          
 
-        # Supprimer les sauts de ligne inutiles résultant de la suppression
+        #Supprimer les sauts de ligne inutiles résultant de la suppression
         file_content = re.sub(r'\n{2,}', '\n', file_content)
-        file_content = file_content.strip()
 
-        # Titre✅
+        file_content= file_content.strip()
+        references = []
+
+
+        #Titre✅
         title_match = re.search(r'^([^\n]+)', file_content)
         title = title_match.group(1).strip() if title_match else None
 
-        # Auteurs✅
+
+
+        #Auteurs✅
         lines = file_content.split('\n')
         authors = []
 
-        # Extract the first author(s) from the first line if it contains commas
-        first_author_match = re.match(r'^\s*([^@]+)\s*$', lines[1]) if len(lines) > 1 else None
+    # Extract the first author(s) from the first line if it contains commas
+        first_author_match = re.match(r'^\s*([^@]+)\s*$', lines[1])
         if first_author_match and ',' in lines[1]:
-            authors.extend([author.strip() for author in first_author_match.group(1).split(',')])
-        elif first_author_match:
-            authors.append(first_author_match.group(1).strip())
-
+                 authors.extend([author.strip() for author in first_author_match.group(1).split(',')])
+        else:
+         authors.append(first_author_match.group(1))
         # Extract other authors based on specified conditions
-        extracting_authors = False
-        for i in range(2, len(lines) - 1):  # Adjusted range to avoid going out of range
+         extracting_authors = False
+         for i in range(2, len(lines)):
             line = lines[i]
             if 'Switzerland' in line or 'USA' in line:
-                if '@' not in lines[i + 1]:
-                    new_author = lines[i + 1].strip() if i + 1 < len(lines) else None
-                    if new_author and new_author not in authors:
+                if '@' not in lines[i+1]:
+                    new_author = lines[i+1].strip()
+                    if new_author not in authors:
                         authors.append(new_author)  # Take the line after 'Switzerland' or 'USA' as an author
                     extracting_authors = True
-            elif '@' in line and i + 1 < len(lines):  # Added check to avoid going out of range
-                new_author = lines[i + 1].strip()
+            elif '@' in line:
+                new_author = lines[i+1].strip()
                 if new_author not in authors:
                     authors.append(new_author)  # Take the line after '@' as an author
                 extracting_authors = True
             elif 'article info' in line.lower() or 'keywords' in line.lower() or 'abstract' in line.lower():
                 break  # Stop if 'article info', 'keywords', or 'abstract' is found
-            elif extracting_authors and i < len(lines):  # Added check to avoid going out of range
+            elif extracting_authors:
                 new_author = line.strip()
                 if new_author not in authors:
                     authors.append(new_author)
+         
+      
 
-        # Institutions
+
+        #Institutions 
+        lines = file_content.split('\n')
         institutions = []
-        for i in range(1, len(lines) - 1):  # Adjusted range to avoid going out of range
-            line = lines[i]
-            if '@' in line:
-                break  # Stop if '@' is found
-            else:
-                institutions.append(line.strip())
+
+         # Extract institutions between the title and the line containing '@'
+        for i in range(1, len(lines)):
+         line = lines[i]
+         if '@' in line:
+            break  # Stop if '@' is found
+         else:
+          institutions.append(line.strip())
 
         # Abstract✅
-        abstract_match = re.search(r'Abstract\n(.+?)\n', file_content, re.DOTALL)
+        abstract_match = re.search(r'(?i)\s*abstract[-]?\s*—?\s*(.*?)(?=\n\n|$)', file_content, re.DOTALL)
         abstract = abstract_match.group(1).strip() if abstract_match else None
 
+
+
+
         # Keywords✅
-        keywords_match = re.search(r'(?:KEYWORDS|index terms): (.+?)(?:I.introduction|1|acm|abstract)',
-                                   file_content, re.IGNORECASE | re.DOTALL)
-        keywords = keywords_match.group(1).split(';') if keywords_match and keywords_match.group(1) else None
-        keywords = [kw.strip() for kw in keywords] if keywords else None
+        keywords_match = re.search(r'(?i)\s*(?:KEYWORDS|index terms)\s*(.*?)(?:(?:I\.INTRODUCTION|introduction|1|acm|abstract)|(?=\n\n|$))', file_content, re.DOTALL)
+        if keywords_match:
+         keywords_str = keywords_match.group(1)
+         if keywords_str is not None:
+            keywords = re.split(r'[;,\n]', keywords_str)
+            keywords = [kw.strip() for kw in keywords]
+            keywords = list(filter(None, keywords))
+        else: keywords=None
+    
+    
+        
 
         # References✅
-        references_match = re.search(r'References\n(.+?)(?=\n[^\[]|$)', file_content, re.DOTALL)
-        references = references_match.group(1).split('\n') if references_match and references_match.group(1) else None
-        references = [ref.strip() for ref in references] if references else None
+        references_match = re.search(r'(?i)\s*references\s*\n(.*?)(?=\n\n|$)', file_content, re.DOTALL)
+        if references_match:
+         references_str = references_match.group(1)
+         if references_str is not None:
+            references = [ref.strip() for ref in re.split(r'\n', references_str)]
+            references = list(filter(None, references))
+
+
 
         return {
             'content': file_content,
@@ -355,3 +381,4 @@ class InfoExtractor(serializers.Serializer):
             'keywords': keywords,
             'references': references,
         }
+        
