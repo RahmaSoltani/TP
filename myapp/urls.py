@@ -2,6 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 from myapp.views import ExtractTextFromPDFView
+from myapp.views import ExtractInfoFromTextView
+
 
 router = DefaultRouter()
 
@@ -25,6 +27,7 @@ urlpatterns = [
     path('check_email/', views.check_email, name='check_email'),
     path('send_email/', views.send_email, name='send_email'),
     path('extract-text-from-pdf/', ExtractTextFromPDFView.as_view(), name='extract-text-from-pdf'),
+    path('extract-info/', ExtractInfoFromTextView.as_view(), name='extract-info'),
     path('extract_pdf_content/', views.extract_specific_sections_from_pdf, name='extract-pdf-content'),
     path('change-password/', views.change_password, name='change_password'),
    
