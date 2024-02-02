@@ -39,15 +39,17 @@ class Article(models.Model):
     institutions = models.ManyToManyField(Institution)
     keywords = models.ManyToManyField(Keyword)
     text = models.TextField(null=True)
-    treated=models.BooleanField(default=False)
-  #   text = models.TextField()
-    pdf_url = models.URLField()
+    treated = models.BooleanField(default=False)
+    pdf_url = models.CharField(max_length=255)  # Change to CharField for local file paths
     references = models.ManyToManyField(Reference)
     date_created = models.DateTimeField(default=timezone.now)
+
     class Meta:
         ordering = ['-date_created']
+
     def __str__(self):
-     return str(self.title)
+        return str(self.title)
+
 class Utilisateur(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name=models.CharField(null=True,unique=True,max_length=50)

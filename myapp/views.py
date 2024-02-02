@@ -416,7 +416,7 @@ def check_username(request):
 
     return Response({'error': 'Invalid request method'})
 @api_view(['POST'])
-def check_egitmail(request):
+def check_email(request):
     if request.method == 'POST':
         email = request.data.get('email')
 
