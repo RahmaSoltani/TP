@@ -1,6 +1,6 @@
 
 # serializers.py
-
+from myapp.models import Author, Institution, Keyword, Reference, Article
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Utilisateur, Moderateur, Admin 
@@ -12,9 +12,11 @@ import requests
 from PyPDF2 import PdfReader
 from rest_framework import serializers
 from django.conf import settings
+from django.utils import timezone
 import re
 import json
 import io
+from django.core.serializers import serialize
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -251,7 +253,8 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
 
 
 
-
+from django.core.serializers import serialize
+from django.forms.models import model_to_dict
 
 class InfoExtractor(serializers.Serializer):
     content = serializers.CharField()
@@ -370,34 +373,55 @@ class InfoExtractor(serializers.Serializer):
         }
         
     def create_article(self, extracted_info):
-      try:
-        title = extracted_info['title']
-        abstract = extracted_info['abstract']
-        authors_data = extracted_info['authors']
-        institutions_data = extracted_info['institutions']
-        keywords_data = extracted_info['keywords']
-        references_data = extracted_info['references']
+        try:
+            title = extracted_info['title']
+            abstract = extracted_info['abstract']
+            authors_data = extracted_info['authors']
+            institutions_data = extracted_info['institutions']
+            keywords_data = extracted_info['keywords']
+            references_data = extracted_info['references']
 
-        authors = [Author.objects.get_or_create(name=author)[0] for author in authors_data]
-        institutions = [Institution.objects.get_or_create(name=institution)[0] for institution in institutions_data]
-        keywords = [Keyword.objects.get_or_create(name=keyword)[0] for keyword in keywords_data] if keywords_data else []
-        references = [Reference.objects.get_or_create(citation=citation)[0] for citation in references_data] if references_data else []
-        article = Article.objects.create(
-            title=title,
-            abstract=abstract,
-            text=extracted_info['content'],
-            pdf_url=extracted_info['pdf_path'],  # Use the pdf_path from the extracted_info
-            treated=False,
-            date_created=timezone.now(),
-        )
+            authors = [Author.objects.get_or_create(name=author)[0] for author in authors_data]
+            institutions = [Institution.objects.get_or_create(name=institution)[0] for institution in institutions_data]
+            keywords = [Keyword.objects.get_or_create(name=keyword)[0] for keyword in keywords_data] if keywords_data else []
+            references = [Reference.objects.get_or_create(citation=citation)[0] for citation in references_data] if references_data else []
 
-        # Add the many-to-many relationships
-        article.authors.set(authors)
-        article.institutions.set(institutions)
-        article.keywords.set(keywords)
-        article.references.set(references)
+            article = Article.objects.create(
+                title=title,
+                abstract=abstract,
+                text=extracted_info['content'],
+                pdf_url=extracted_info['pdf_path'],
+                treated=False,
+                date_created=timezone.now(),
+            )
 
-        return article
-      except Exception as e:
-        print(f"Error during article creation: {e}")
-        return None
+            # Add the many-to-many relationships
+            article.authors.set(authors)
+            article.institutions.set(institutions)
+            article.keywords.set(keywords)
+            article.references.set(references)
+
+            # Serialize the related data
+            serialized_authors = [model_to_dict(author) for author in authors]
+            serialized_institutions = [model_to_dict(institution) for institution in institutions]
+            serialized_keywords = [model_to_dict(keyword) for keyword in keywords]
+            serialized_references = [model_to_dict(reference) for reference in references]
+
+            return {
+                'article': {
+                    'id': article.id,
+                    'title': article.title,
+                    'abstract': article.abstract,
+                    'text': article.text,
+                    'pdf_url': article.pdf_url,
+                    'treated': article.treated,
+                    'date_created': article.date_created,
+                },
+                'authors': serialized_authors,
+                'institutions': serialized_institutions,
+                'keywords': serialized_keywords,
+                'references': serialized_references,
+            }
+        except Exception as e:
+            print(f"Error during article creation: {e}")
+            return None

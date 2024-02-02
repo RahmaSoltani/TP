@@ -442,6 +442,7 @@ def send_email(request):
     send_mail(subject, message, from_email, recipient_list)
     return Response({'code':code})
 
+    
 class ExtractionView(APIView):
     def post(self, request, *args, **kwargs):
         # Extract common data from the request
@@ -458,6 +459,12 @@ class ExtractionView(APIView):
         info_serializer = InfoExtractor(data=request.data)
         if info_serializer.is_valid():
             info_data = info_serializer.extract_info(pdf_path)
+            # Create article using the extracted information
+            article = info_serializer.create_article(info_data)
+            if article:
+                print(f"Article created successfully: {article}")
+            else:
+                print("Article creation failed.")
         else:
             return Response(info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
