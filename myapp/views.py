@@ -101,9 +101,11 @@ class ArticleDocViewSet(DocumentViewSet):
 @api_view(['POST'])
 #@permission_classes([IsAuthenticated])
 def change_password(request):
-    user = request.user
+    
+    id = request.data.get('id')
     old_password = request.data.get('old_password')
     new_password = request.data.get('new_password')
+    user=models.User.objects.get(id=id)
 
     # Authenticate user with old password
     if not authenticate(username=user.username, password=old_password):
@@ -112,7 +114,6 @@ def change_password(request):
     # Change the password
     user.password = make_password(new_password)
     user.save()
-
     return Response({'detail': 'Password changed successfully'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -121,13 +122,13 @@ def login(request):
     username=request.data.get('username')
     password=request.data.get('password')
     user = authenticate(username=username, password=password)
-    id = user.id
     if user is not None:
         user_type = None
 
         try:
             moderateur = user.moderateur_set.get()
             user_type = 'moderateur'
+            id=moderateur.id
         except models.Moderateur.DoesNotExist:
             pass
 
@@ -135,6 +136,7 @@ def login(request):
             try:
                 utilisateur = user.utilisateur_set.get()
                 user_type = 'utilisateur'
+                id=utilisateur.id
             except models.Utilisateur.DoesNotExist:
                 pass
 
@@ -142,13 +144,14 @@ def login(request):
             try:
                 admin = user.admin_set.get()
                 user_type = 'admin'
+                id=admin.id
             except models.Admin.DoesNotExist:
                 pass
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-        return Response({'access_token': access_token,'user_type':user_type,'id':id}, status=status.HTTP_200_OK)
+        return Response({'access_token': access_token,'user_type':user_type,'id':id,'username':username}, status=status.HTTP_200_OK)
     else:
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
