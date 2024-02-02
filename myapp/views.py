@@ -442,12 +442,26 @@ def send_email(request):
     send_mail(subject, message, from_email, recipient_list)
     return Response({'code':code})
 
-class ExtractInfoFromTextView(APIView):
+class ExtractionView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = InfoExtractor(data=request.data)
+        # Extract common data from the request
+        pdf_path = request.data.get('pdf_path', '')
 
-        if serializer.is_valid():
-            extracted_info = serializer.extract_info()
-            return Response(extracted_info, status=status.HTTP_200_OK)
+        # Text extraction
+        text_serializer = PDFTxtExtractionSerializer(data=request.data)
+        if text_serializer.is_valid():
+            text_data = {'text_file': text_serializer.validated_data['text_file']}
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(text_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Information extraction
+        info_serializer = InfoExtractor(data=request.data)
+        if info_serializer.is_valid():
+            info_data = info_serializer.extract_info(pdf_path)
+        else:
+            return Response(info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Combine the results
+        combined_data = {**text_data, **info_data}
+
+        return Response(combined_data, status=status.HTTP_200_OK)

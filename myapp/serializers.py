@@ -195,6 +195,7 @@ class ModerateurSerializer(serializers.ModelSerializer):
 
 
 
+
 class PDFTxtExtractionSerializer(serializers.Serializer):
     pdf_path = serializers.CharField()
 
@@ -222,7 +223,8 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
                 page = pdf_reader.pages[page_num]
                 text += page.extract_text()
 
-            return text
+            return text, pdf_path  
+
 
         except Exception as e:
             raise serializers.ValidationError(f"An error occurred: {str(e)}")
@@ -234,7 +236,7 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
             raise serializers.ValidationError('Please provide a path to a PDF file or a URL.')
 
         # Call the text extraction function
-        text = self.extract_text_from_pdf(pdf_path)
+        text, pdf_path = self.extract_text_from_pdf(pdf_path)
 
         # Save the text to a text file in the media directory of your Django project
         file_path = os.path.join(settings.MEDIA_ROOT, 'extracted_text.txt')
@@ -242,9 +244,11 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
         with open(file_path, 'w', encoding='utf-8') as txt_file:
             txt_file.write(text)
 
-        # Return the relative path of the text file in the media directory
+        # Return both the relative path of the text file and the pdf_path in the media directory
         data['text_file'] = os.path.relpath(file_path, settings.MEDIA_ROOT)
+        data['pdf_path'] = pdf_path  # Add the pdf_path to the returned data
         return data
+
 
 
 
@@ -252,18 +256,54 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
 class InfoExtractor(serializers.Serializer):
     content = serializers.CharField()
 
-    def extract_info(self):
+    def create_article(self, extracted_info):
+      try:
+        title = extracted_info['title']
+        abstract = extracted_info['abstract']
+        authors_data = extracted_info['authors']
+        institutions_data = extracted_info['institutions']
+        keywords_data = extracted_info['keywords']
+        references_data = extracted_info['references']
+
+        authors = [Author.objects.get_or_create(name=author)[0] for author in authors_data]
+
+        institutions = [Institution.objects.get_or_create(name=institution)[0] for institution in institutions_data]
+
+        keywords = [Keyword.objects.get_or_create(name=keyword)[0] for keyword in keywords_data] if keywords_data else []
+
+        references = [Reference.objects.get_or_create(citation=citation)[0] for citation in references_data] if references_data else []
+
+        article = Article.objects.create(
+            title=title,
+            abstract=abstract,
+            text=extracted_info['content'],
+            pdf_url=extracted_info['pdf_path'],  # Use the pdf_path from the extracted_info
+            treated=False,
+            date_created=timezone.now(),
+        )
+
+        # Add the many-to-many relationships
+        article.authors.set(authors)
+        article.institutions.set(institutions)
+        article.keywords.set(keywords)
+        article.references.set(references)
+
+        return article
+      except Exception as e:
+        print(f"Error during article creation: {e}")
+        return None
+
+    def extract_info(self, pdf_path):
+        # Assume pdf_path is passed to the extract_info method, but still, extract information from a text file
         file_path = self.validated_data['content']
-        
+
         if not os.path.exists(file_path):
             return {"error": f"File not found: {file_path}"}
 
         try:
-            # Lecture du contenu du fichier
             with open(file_path, 'r', encoding='utf-8') as file:
                 file_content = file.read()
         except Exception as e:
-            # Gérer d'autres erreurs de lecture du fichier
             return {"error": str(e)}
 
         expressions_a_supprimer = [
@@ -326,14 +366,9 @@ class InfoExtractor(serializers.Serializer):
                 new_author = line.strip()
                 if new_author not in authors:
                     authors.append(new_author)
-         
-      
-
-
         #Institutions 
         lines = file_content.split('\n')
         institutions = []
-
          # Extract institutions between the title and the line containing '@'
         for i in range(1, len(lines)):
          line = lines[i]
@@ -341,14 +376,9 @@ class InfoExtractor(serializers.Serializer):
             break  # Stop if '@' is found
          else:
           institutions.append(line.strip())
-
         # Abstract✅
         abstract_match = re.search(r'(?i)\s*abstract[-]?\s*—?\s*(.*?)(?=\n\n|$)', file_content, re.DOTALL)
         abstract = abstract_match.group(1).strip() if abstract_match else None
-
-
-
-
         # Keywords✅
         keywords_match = re.search(r'(?i)\s*(?:KEYWORDS|index terms)\s*(.*?)(?:(?:I\.INTRODUCTION|introduction|1|acm|abstract)|(?=\n\n|$))', file_content, re.DOTALL)
         if keywords_match:
@@ -358,10 +388,6 @@ class InfoExtractor(serializers.Serializer):
             keywords = [kw.strip() for kw in keywords]
             keywords = list(filter(None, keywords))
         else: keywords=None
-    
-    
-        
-
         # References✅
         references_match = re.search(r'(?i)\s*references\s*\n(.*?)(?=\n\n|$)', file_content, re.DOTALL)
         if references_match:
@@ -369,9 +395,6 @@ class InfoExtractor(serializers.Serializer):
          if references_str is not None:
             references = [ref.strip() for ref in re.split(r'\n', references_str)]
             references = list(filter(None, references))
-
-
-
         return {
             'content': file_content,
             'title': title,
@@ -380,5 +403,6 @@ class InfoExtractor(serializers.Serializer):
             'abstract': abstract,
             'keywords': keywords,
             'references': references,
+            'pdf_path': pdf_path,  
         }
         
