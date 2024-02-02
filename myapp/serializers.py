@@ -256,43 +256,6 @@ class PDFTxtExtractionSerializer(serializers.Serializer):
 class InfoExtractor(serializers.Serializer):
     content = serializers.CharField()
 
-    def create_article(self, extracted_info):
-      try:
-        title = extracted_info['title']
-        abstract = extracted_info['abstract']
-        authors_data = extracted_info['authors']
-        institutions_data = extracted_info['institutions']
-        keywords_data = extracted_info['keywords']
-        references_data = extracted_info['references']
-
-        authors = [Author.objects.get_or_create(name=author)[0] for author in authors_data]
-
-        institutions = [Institution.objects.get_or_create(name=institution)[0] for institution in institutions_data]
-
-        keywords = [Keyword.objects.get_or_create(name=keyword)[0] for keyword in keywords_data] if keywords_data else []
-
-        references = [Reference.objects.get_or_create(citation=citation)[0] for citation in references_data] if references_data else []
-
-        article = Article.objects.create(
-            title=title,
-            abstract=abstract,
-            text=extracted_info['content'],
-            pdf_url=extracted_info['pdf_path'],  # Use the pdf_path from the extracted_info
-            treated=False,
-            date_created=timezone.now(),
-        )
-
-        # Add the many-to-many relationships
-        article.authors.set(authors)
-        article.institutions.set(institutions)
-        article.keywords.set(keywords)
-        article.references.set(references)
-
-        return article
-      except Exception as e:
-        print(f"Error during article creation: {e}")
-        return None
-
     def extract_info(self, pdf_path):
         # Assume pdf_path is passed to the extract_info method, but still, extract information from a text file
         file_path = self.validated_data['content']
@@ -406,3 +369,35 @@ class InfoExtractor(serializers.Serializer):
             'pdf_path': pdf_path,  
         }
         
+    def create_article(self, extracted_info):
+      try:
+        title = extracted_info['title']
+        abstract = extracted_info['abstract']
+        authors_data = extracted_info['authors']
+        institutions_data = extracted_info['institutions']
+        keywords_data = extracted_info['keywords']
+        references_data = extracted_info['references']
+
+        authors = [Author.objects.get_or_create(name=author)[0] for author in authors_data]
+        institutions = [Institution.objects.get_or_create(name=institution)[0] for institution in institutions_data]
+        keywords = [Keyword.objects.get_or_create(name=keyword)[0] for keyword in keywords_data] if keywords_data else []
+        references = [Reference.objects.get_or_create(citation=citation)[0] for citation in references_data] if references_data else []
+        article = Article.objects.create(
+            title=title,
+            abstract=abstract,
+            text=extracted_info['content'],
+            pdf_url=extracted_info['pdf_path'],  # Use the pdf_path from the extracted_info
+            treated=False,
+            date_created=timezone.now(),
+        )
+
+        # Add the many-to-many relationships
+        article.authors.set(authors)
+        article.institutions.set(institutions)
+        article.keywords.set(keywords)
+        article.references.set(references)
+
+        return article
+      except Exception as e:
+        print(f"Error during article creation: {e}")
+        return None
