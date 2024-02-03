@@ -27,6 +27,8 @@ urlpatterns = [
     path('treat-article/<int:article_id>/', views.treat_article, name='treat_article'),
     path('articlee/<int:article_id>/', views.get_article, name='get_article'),
 
+    path('check-favorite-article/<int:user_id>/<int:article_id>/', views.check_favorite_article, name='check_favorite_article'),
+
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
     path('change-password/', views.change_password, name='logout'),

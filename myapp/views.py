@@ -70,6 +70,21 @@ class InstitutionViewSet(viewsets.ModelViewSet):
 class RefrenceViewSet(viewsets.ModelViewSet):
     queryset = models.Reference.objects.all()
     serializer_class = serializers.ReferenceSerializer
+@api_view(['GET'])
+def check_favorite_article(request, user_id, article_id):
+    try:
+        user = models.Utilisateur.objects.get(pk=user_id)
+        article = Article.objects.get(pk=article_id)
+        is_favorite = article in user.favoris.all()
+        return Response({'is_favorite': is_favorite})
+    except models.Utilisateur.DoesNotExist:
+        return Response({'error': 'User not found'}, status=404)
+    except Article.DoesNotExist:
+        return Response({'error': 'Article not found'}, status=404)
+
+    except Article.DoesNotExist:
+        return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
+    
 @api_view(['PATCH'])
 def update_article(request, id):
     try:
@@ -160,7 +175,6 @@ def add_article_to_favorites(request):
         
         # Return success response
         return Response({"message": "Article added to favorites successfully"}, status=200)
-
 @api_view(['POST'])
 #@permission_classes([IsAuthenticated])
 def change_password(request): 
