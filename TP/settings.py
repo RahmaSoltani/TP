@@ -46,8 +46,11 @@ INSTALLED_APPS = [
     'myapp',
     'drf_pdf',
     'corsheaders',
+    'django_filters',
+
 
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ELASTICSEARCH_INDEX_NAMES = {
     'articles.article': 'articles',
@@ -152,6 +155,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
      "corsheaders.middleware.CorsMiddleware",
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     "django.middleware.common.CommonMiddleware", 
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -164,21 +168,21 @@ MIDDLEWARE = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'baraaassociation595@gmail.com'
-EMAIL_HOST_PASSWORD = 'agbdmmgxmwkqinfs'
+EMAIL_HOST_USER = 'rtclebitwebsite@gmail.com'
+EMAIL_HOST_PASSWORD = 'jxbg qgrj ebnx noba'
 EMAIL_PORT = 587
 
-APPLICATION_EMAIL = 'baraaassociation595@gmail.com'
-DEFAULT_FROM_EMAIL = 'baraaassociation595@gmail.com'
-SMTP_USERNAME = 'Baraa_Association'
-SMTP_PASSWORD = 'agbdmmgxmwkqinfs'
+APPLICATION_EMAIL = 'rtclebitwebsite@gmail.com'
+DEFAULT_FROM_EMAIL = 'rtclebitwebsite@gmail.com'
+SMTP_USERNAME = 'RTCLEbit website'
+SMTP_PASSWORD = 'jxbg qgrj ebnx noba'
+
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 SMTP_USE_TLS = True
 CORS_ORIGIN_ALLOW_ALL = True
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-"""
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
     'rest_framework.authentication.TokenAuthentication',
@@ -188,27 +192,21 @@ REST_FRAMEWORK = {
     ],
    'DEFAULT_PERMISSION_CLASSES': [
     'rest_framework.permissions.AllowAny',
-    'rest_framework.permissions.IsAuthenticated',
    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 
 }
-"""
+
 STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
+
 STATIC_URL = '/static/'
 
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',  # Example origin of your frontend application
+]

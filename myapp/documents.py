@@ -10,6 +10,7 @@ PUBLISHER_INDEX.settings(
     )
 @PUBLISHER_INDEX.doc_type
 class ArticleDocument(Document):
+    id=fields.IntegerField()
     title = fields.TextField()
     abstract = fields.TextField()
     pdf_url = fields.KeywordField()

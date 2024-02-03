@@ -20,7 +20,7 @@ from django.core.serializers import serialize
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'email']
+        fields = ['id','username', 'password', 'email']
 
 
 
@@ -47,45 +47,7 @@ class ReferenceSerializer(serializers.ModelSerializer):
         model = models.Reference
         fields = '__all__'
 
-class AdminSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
 
-    class Meta:
-        model = Admin
-        fields = '__all__'
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        favoris_data = validated_data.pop('favoris', [])
-
-        # Create the User instance
-        user = User.objects.create_user(**user_data)
-
-        # Create the Admin instance (assuming Admin extends Utilisateur)
-        admin = Admin.objects.create(user=user, **validated_data)
-
-        # Set favoris for the Admin instance (if needed)
-
-        return admin
-
-    def update(self, instance, validated_data):
-        # Exclude 'user' from validated_data to avoid unintentional username checks
-        user_data = validated_data.pop('user', None)
-
-        # Check if user_data is not None and username is not 'None'
-        if user_data and user_data.get('username') is not None:
-            instance.user.username = user_data.get('username', instance.user.username)
-        instance.user.email = user_data.get('email', instance.user.email)
-        instance.user.save()
-
-        # Update Admin fields
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.family_name = validated_data.get('family_name', instance.family_name)
-
-        # Save Admin instance
-        instance.save()
-
-        return instance
 
 class ArticleDocumentSerializer(DocumentSerializer):   
    class Meta:
@@ -110,6 +72,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = ['id','title', 'abstract', 'authors', 'institutions', 'keywords', 'pdf_url', 'references', 'date_created']
 
 
+
 class UtilisateurSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     favoris = ArticleSerializer(many=True, required=False)
@@ -121,8 +84,6 @@ class UtilisateurSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         favoris_data = validated_data.pop('favoris', [])
-
-        # Create the User instance
         user = User.objects.create_user(**user_data)
 
         # Create the Utilisateur instance
@@ -135,9 +96,10 @@ class UtilisateurSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Exclude 'user' from validated_data to avoid unintentional username checks
         user_data = validated_data.pop('user', None)
-
         # Check if user_data is not None and username is not 'None'
-        if user_data and user_data.get('username') is not None:
+        if user_data.get('username')=='None':
+            pass
+        else :
             instance.user.username = user_data.get('username', instance.user.username)
         instance.user.email = user_data.get('email', instance.user.email)
         instance.user.save()
@@ -180,7 +142,9 @@ class ModerateurSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop('user', None)
 
         # Check if user_data is not None and username is not 'None'
-        if user_data and user_data.get('username') is not None:
+        if user_data.get('username')=='None':
+            pass
+        else :
             instance.user.username = user_data.get('username', instance.user.username)
         instance.user.email = user_data.get('email', instance.user.email)
         instance.user.save()
@@ -194,6 +158,48 @@ class ModerateurSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class AdminSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Admin
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        favoris_data = validated_data.pop('favoris', [])
+
+        # Create the User instance
+        user = User.objects.create_user(**user_data)
+
+        # Create the Admin instance (assuming Admin extends Utilisateur)
+        admin = Admin.objects.create(user=user, **validated_data)
+
+        # Set favoris for the Admin instance (if needed)
+
+        return admin
+
+    def update(self, instance, validated_data):
+        # Exclude 'user' from validated_data to avoid unintentional username checks
+        user_data = validated_data.pop('user', None)
+
+        # Check if user_data is not None and username is not 'None'
+        if user_data.get('username')=='None':
+            pass
+        else :
+            instance.user.username = user_data.get('username', instance.user.username)
+        instance.user.email = user_data.get('email', instance.user.email)
+        instance.user.save()
+
+        # Update Admin fields
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.family_name = validated_data.get('family_name', instance.family_name)
+
+        # Save Admin instance
+        instance.save()
+
+        return instance
 
 
 

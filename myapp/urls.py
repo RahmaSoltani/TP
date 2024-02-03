@@ -5,7 +5,6 @@ from myapp.views import ExtractionView
 
 
 router = DefaultRouter()
-
 router.register(r'utilisateur', views.UtilisateurViewSet)
 router.register(r'moderateur', views.ModerateurViewSet)
 router.register(r'admin', views.AdminViewSet)
@@ -20,8 +19,19 @@ router.register(r'keyword', views.KeywordViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', views.login, name='login'),
+    path('add-article/', views.add_article_to_favorites, name='login'),
+    path('article-details/<int:id>/', views.article_details, name='article_details'),
+    path('update-article/<int:id>/', views.update_article, name='update'),
+    path('favoris/<int:utilisateur_id>/', views.list_favorite_articles, name='list_favorite_articles'),
+    path('search-and-filter/', views.search_and_filter_articles, name='search_and_filter_articles'),
+    path('treat-article/<int:article_id>/', views.treat_article, name='treat_article'),
+    path('articlee/<int:article_id>/', views.get_article, name='get_article'),
+
     path('search/', views.ArticleDocViewSet.as_view({'get': 'list'}), name='article-search'),
     path('logout/', views.login, name='logout'),
+    path('change-password/', views.change_password, name='logout'),
+    path('non-treated-articles/', views.non_treated_articles, name='non_treated_articles'),
+
     path('check_username/', views.check_username, name='check_username'),
     path('check_email/', views.check_email, name='check_email'),
     path('send_email/', views.send_email, name='send_email'),
