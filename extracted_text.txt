@@ -1,754 +1,1016 @@
-AI Model for Computer games based on Case Based 
-Reasoning and AI Planning  
-Vlado Menkovski 
-Athens Information Technology 
-0.8km Markopoulou Ave. 
-Peania, 19002, Greece 
-vmen@ait.edu.gr Dimitrios Metafas 
-Athens Information Technology 
-0.8km Markopoulou Ave. 
-Peania, 19002, Greece 
-dmeta@ait.edu.gr 
-Abstract
-Making efficient AI models for games with imperfect 
-information can be a particular challenge. Considering the large 
-number of possible moves and the incorporated uncertainties building game trees for these games becomes very difficult due to the exponential growth of the number of nodes at each level. This 
-effort is focused on presenting a method of combined Case Based 
-Reasoning (CBR) with AI Planning which drastically reduces the size of game trees. Instead of looking at all possible combinations we can focus only on the moves that lead us to specific strategies 
-in effect discarding meaningless moves. These strategies are 
-selected by finding similarities to cases in the CBR database. The strategies are formed by a set of desired goals. The AI planning is responsible for creating a plan to r each these goals. The plan is 
-basically a set of moves that brings the player to this goal. By 
-following these steps and not regarding the vast number of other possible moves the model develops Game Trees which grows slower so they can be built with more feature moves restricted by 
-the same amount of memory.  
-Categories and Subject Descriptors 
-I.2.1 [Applications and Expert Systems]: Games
-General Terms
-Algorithms, Performance. 
-Keywords
-Game AI, Case Based Reasoning, AI Planning, Game Trees 
-1. Introduction 
-The goal of this effort is to explore a model for design and 
-implementation of an AI agent for turn based games. This model provides for building more capable computer opponents that rely on strategies that closely resemble human approach in solving 
-problems opposed to classical computational centric heuristics in 
-game AI. In this manner the computational resources can be focused on more sensible strategies for the game play.  With the advancement in computer hardware increasingly 
-more computing power is left for executing AI algorithms in 
-g a m e s .  I n  t h e  p a s t  A I  i n  g a m e s was mainly a cheating set of 
-instructions that simulated the in creasing difficulty in the game 
-environment so that the player had the illusion of real counterpart. 
-Improvement in available memory and processing power allows 
-implementation of more intelligent algorithms for building the game environment as well as direct interaction with the human players.   
-In this particular research the emphasis is put on the 
-interaction between the AI agent and a computer player in the 
-realm of the game rules. It is particularly focused on turn based 
-games that have the elements of uncertainty like dice or concealed information. At the beginning a description of Game AI algorithms are given; such as Game Trees and Minimax. The following section describes an approach of using AI Planning to 
-improve building Game Trees in games with imperfect 
-information where Game Trees tend to be very large with high growth ratio. Section 4 discusses another approach that provides a significant reduction to the number of considered moves in order 
-to find the favorable strategy of the AI player. This approach uses 
-AI Planning techniques and Case Base Reasoning (CBR) to plan for different scenarios in predetermined strategies which would be analogous to human player experience in the particular game. The 
-CBR database illustrates a set of past experiences for the AI 
-problem and the AI Planning illustrates the procedure to deal with the given situation in the game. In the next two sections implementations and evaluations of both approaches are given. 
-The AI Planning approach is implemented with the Tic-tac-toe 
-game and the combined AI Planning and CBR approach is implemented with a model for the Monopoly game. The last part contains conclusions and future work ideas.  
-2. Game Trees and Minimax 
-Game Trees are common model for evaluating how different 
-combinations of moves from the player and his opponents will affect the future position of the player and eventually the end result of the game. An algorithm that decides on the next move by 
-evaluating the results from the built Game Tree is minimax [1]. 
-Minimax assumes that the player at hand will always choose the best possible move for him, in ot her words the player will try to 
-select the move that maximizes the result of the evaluation 
-function over the game state. So basically the player at hand needs 
-to choose the best move overall while taking into account that the next player(s) will try to do the same thing. Minimax tries to maximize the minimum gain. Minimax can be applied to multiple Permission to make digital or hard copies of all or part of this work for 
-personal or classroom use is granted without fee provided that copies are 
-not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. To copy 
-otherwise, or republish, to post on servers or to redistribute to lists, 
-requires prior specific permission and/or a fee. DIMEA’08 , September 10–12, 2008, Athens, Greece. 
-Copyright 2008 ACM 978-1-60558-248-1/08/09... $5.00 Interactive and Adaptable Media 295
-3rd International Conference on Digital Interactive Media in Entertainment and Arts
-levels of nodes on the g ame tree, where the leaves bring the final 
-known (or considered) game state.  
-The minimax theorem states: 
-For every two-person, zero-sum game there is a mixed strategy 
-for each player, such that the expected payoff for both is the same 
-value V when the players use these strategies. Furthermore, V is the best payoff each can expect to receive from a play of the 
-game; that is, these mixed strategies are the optimal strategies for 
-the two players. 
-This theorem was established by John von Neumann, who is 
-quoted as saying "As far as I can see, there could be no theory of 
-games … without that theorem … I thought there was nothing 
-worth publishing until the Minimax Theorem  was proved" [2]. 
-A simple example of minimax can be observed by building a 
-game tree of the tic-tac-toe game. The tic-tac-toe game is a simple 
-game which can end by the first player wining, the second player wining or a tie. There are nine positions for each of the players in which at each turn the player puts X or O sign. If the player has 
-three adjacent signs in a row, column or the two diagonals he or 
-she wins. This game has limited number of position and it is well 
-suited for building the whole game tree. The leaves of this tree will be final positions in the game. A heuristics evaluation 
-function will also need to be written to evaluate the value of each 
-node along the way. 
-3. AI Planning for building Game Trees 
-3.1.1 AI Planning 
-AI Planning also referred as Automated Planning and 
-Scheduling is a branch of Artificial Intelligence that focuses on finding strategies or sequences of actions that reach a predefined goal [3]. Typical execution of AI Planning algorithms is by 
-intelligent agents, autonomous ro bots and unmanned vehicles. 
-Opposed to classical control or classification AI Planning results with complex solutions that are derived from multidimensional space. 
- AI Planning algorithms are also common in the video game 
-development. They solve broad range of problems from path finding to action planning. A typical planner takes three inputs: a 
-description of the initial state of the world, a description of the 
-desired goal, and a set of possible actions. Some efforts for incorporating planning techniques for building game trees have also shown up, similar to the approach explored in this effort. In 
-addition Cased Based Reasoning [4] techniques are also gathering 
-popularity in developing strategies based in prior knowledge about the problems in the games. One of the benefits from Hierarchical Task Network (HTN) [5] planning is the possibility to build Game Trees based on HTN plans; this met hod is 
-described in the following section. 
-3.2 Game Trees with AI Planning 
-An adaptation of the HTN planning can be used to build 
-much smaller and more efficient game trees. This idea has already been implemented in the Bridge Baron a computer program for 
-the game of Contact Bridge [6]. 
-Computer programs based on Game Tree search techniques 
-are now as good as or better than humans in many games like 
-Chess [7] and checkers [8], but there are some difficulties in 
-building a game tree for games that have imperfect information and added uncertainty like card or games with dice. The main problem is the enorm ous number of possibilities that the player 
-can choose from in making his move. In addition some of the moves are accompanied with probabilities based on the random 
-elements in the games. The number of possible moves 
-exponentially grows with each move so the depth of the search 
-has to be very limited to accommodate for the memory limitations.  
-The basic idea behind using HTN for building game trees is 
-that the HTN provides the means of expressing high level goals and describing strategies how to reach those goals. These goals may be decomposed in goals at lower level called sub-goals. This 
-approach closely resembles the way a human player usually 
-addresses a complex problem. It is also good for domains where classical search for solution is no t feasible due to the vastness of 
-the problem domain or uncertainties. 
-3.2.1 Hierarchical Task Networks 
-The Hierarchical Task Network, or HTN, is an approach to 
-automated planning in which the dependency among actions can 
-be given in the form of networks [9] [Figure 1]. 
-A simple task network (or just a task network for short) is an 
-acyclic digraph /g1875/g3404/g4666 /g1847 /g481 /g1831 /g4667  in which U is the node set, E is the 
-edge set, and each node /g1873/g1488/g1847  contains a task /g1872/g3048. The edges of /g1875
-define a partial ordering of U. If the partial ordering is total, then we say that /g1875 is totally ordered, in which case /g1875 can be written as 
-a sequence of tasks /g1875/g3404 /g1731/g1872
-/g2869/g481/g1872/g2870/g481/g485/g481/g1872 /g3038/g1732.
-Figure 1: Simple Hierarchical Task Network 
-A Simple Task Network (STN) method is a 4-tuple of its n ame, 
-task, precondition and a task network. The name of the method lets us refer unambiguously to substitution instances of the method, without having to write the preconditions and effects 
-explicitly. The task tells what kind of task can be applied if the 
-preconditions are met. The preconditions specify the conditions that the current state needs to satisfy in order for the method to be applied. And the network defines the specific subtasks to 
-accomplish in order to accomplish the task. 
-A method is relevant for a task if the current state satisfies the 
-preconditions of a method that implements that task. This task can 
-be then substituted with the instance of the method. The 
-substitution is basically giving the method network as a solution for the task. 
-If there is a task “Go home” and the distance to home is 3km 
-[Figure 2] and there exists a method walk-to and this method has a precondition that the distance is le ss than 5km, then a substation 
-to the task “Go home” can be made with this method instance.  
-Figure 2: HTN Method Buy milk
-Go to (shop) Purchase Go to (home )
-Go-to (from, to)
-Walk (to)If (to – from) < 5km 296 DIMEA 2008
-3rd International Conference on Digital Interactive Media in Entertainment and ArtsIf the distance is larger than 5km another meth
-to be substituted [Figure 3]. 
-Figure 3: HTN Method 2 
-An STN planning domain is a set of operati o
-methods M. A STN planning problem is a 4- tu
-state S 0, the task network w called initial tas k
-STN domain. A plan /g2024/g3404 /g1731/g1853/g2869/g481/g485/g481/g1853 /g3041/g1732is a solut i
-problem if there is a way to decompose w into π
-and each decomposition is applicable in the a p
-the world. The algorithm that is capable to 
-networks into plans is called Total-forward- deco
-[9] or Partial-forward- decomposition (PFD). H
-cases where one does not want to use a forw a
-procedure. HTN planning is generalization of S
-gives the planning procedure more fr eedo m
-construct the task networks.  
-In order to provide this freedom, a bookk e
-is needed to represent constraints that the plan n
-not yet enforced. The bookkeeping is done b y
-unenforced constrain ts explicitly in the task net w
-The HTN generalizes the definition of a
-STN. A task network is the pair /g1875 /g3404  /g4666/g1847/g481 /g1829/g4667 w
-task nodes and Cis a set of constraints. Eac
-specifies a requirement that must be satisfied b y
-a solution to a planning problem.  
-The definition of a method in HTN als o
-definition used in STN planning. A HTN pl a
-name, task, subtasks, and constraints. The s
-constraints form the task network. The HTN pla n
-identical to STN planning domains except they u
-instead of STN methods. 
-Compared to classical planners the pri m
-HTN planners is their sophisticated knowledge r
-reasoning capabilities. They can represent and 
-non-classical planning problems; with a goo d
-guide them, they can solve classical planning p
-magnitude more quickly than classical or neo c
-The primary disadvantage of HTN is the ne e
-author to write not only a set of planning oper a
-of methods. 
-3.2.2 HTN Planning in building Game 
-For a HTN planning algorithm to be adap
-trees we need to define the domain (set of H
-operators) which is the domain of the game. Th i
-a knowledge representation of the rules of th e
-environments and possible strategies of game pl a
-In this domain the ga me rules as well as k n
-tackle specific task are defined.   The imple m
-Tree building with HTN is called Tig n
-implementation uses a procedure simil a
-decomposition, but adapted to build up a game Drive(toIf(tGo-to (from, to) 
-If(to – from) < 5km 
-Walk (to) hod instance needs 
-ons O and a set of 
-uple of the initial 
-k network and the 
-ion for a planning 
-π if π is executable 
-ppropriate state of 
-decompose these 
-omposition (TFD) 
-However there are 
-ard-decomposition 
-STN planning that 
-m about how to 
-eeping mechanism 
-ning algorithm has 
-y representing the 
-work. 
-a task network in 
-where /g1847 is a set of 
-h constraint in C 
-y every plan that is 
-o generalizes the 
-an is a 4 -tuple of 
-subtasks and the 
-nning domains are 
-use HTN methods 
-mary advantage of 
-representation and 
-solve a variety of 
-d set of HTNs to 
-problems orders of 
-classical planne rs. 
-ed of the domain 
-ators but also a set 
-Trees
-ted to build game 
-HTN methods and 
-is is in some sense 
-e game, the game 
-ay.
-nown strategies to 
-mentation of Game 
-num2 [9]. This 
-ar to forward-
-tree rather than a plan. The branches of the game tree re p
-the methods. Tignum2 applies all me t
-state of the world to produce ne w
-continues recursively until there are n
-have not a lready been applied to t h
-world.  
-In the task network generated by Tign u
-actions will occur is determined by th
-By listing the actions in the order 
-network can be “serialized” into a ga m
-4. Case Based Reasoning i n
-4.1 Case Based Reasoning
-Case-based reasoning (CBR) is a 
-Artificial Intelligence (AI), both as 
-problems and as a basis for standalone 
-Case-based reasoning is a paradig m
-solving and learning that has became 
-applied subfield of AI of recent ye a
-intuition that problems tend to recur. I
-are often similar to previously e n
-therefore, that past solutions may be o f
-[10].  
-CBR is particularly applicable to prob l
-available, even when the domain is n
-for a deep domain model. Helpdesks ,
-systems have been the most successf u
-to determine a fault or diagnostic 
-attributes, or to determine whether o r
-repair is necessary given a set of past s
-Figure 5: Game Tree built f rFigure 4 : HTN to Game T r)to – from) < 200km present moves generated by 
-thods applicable to a given 
-w states of the world and 
-no applicable methods that 
-he appropriate state of the 
-um2, the order in which the 
-e total -ordering constraints. 
-they will occur, the task 
-me tree [ Figure 4] [Figure 5]. 
-n Game Strategies
-well established subfield of 
-a mean for addressing AI 
-AI technology.
-m for combining proble m-
-one of the most successful 
-ars. CBR is based on the 
-It means that new problems 
-ncountered problems and, 
-f use in the current situation 
-lems where earlier cases are 
-not understood well enough 
-, diagnosis or classification 
-ul areas of application, e.g., 
-an illness from observed 
-r not a certain treatment or 
-olved cases [11]. 
-rom HTNree AlgorithmInteractive and Adaptable Media 297
-3rd International Conference on Digital Interactive Media in Entertainment and ArtsCentral tasks that all CBR methods have to deal with are [12]: "to 
-identify the current problem situation, find a past case similar to the new one, use that case to suggest a solution to the current 
-problem, evaluate the proposed solution, and update the system by 
-learning from this experience. How this is done, what part of the process that is focused, what type of problems that drives the methods, etc. varies considerably, however".  
-While the underlying ideas of CBR can be applied 
-consistently across application domains, the specific implementation of the CBR methods –in particular retrieval and similarity functions– is highly customized to the application at 
-hand. 
-4.2 CBR and Games 
-Many different implementations of CBR exist in games. 
-CBR technology is nicely suited for recognizing complex 
-situations much easier and more elegant than traditional parameter 
-comparison or function evaluation. There are especially evident cases in real time strategies where different attack and defense of global strategies are nicely define d by CBR datasets and later used 
-in the running games. Also intelligent bots behavior is also 
-another typical example. Depending on the number of enemy bots the layout of the terrain and position of human players the CBR system finds the closest CBR case and employs that strategy 
-against the human players which in prior evaluation was proved to 
-be highly efficient. 
-5. Game Trees with AI Planning – Tic-tac-toe 
-In order to show the expressive power of AI Planning in 
-defining strategies for games, and the use of these plans to build 
-Game Trees I implemented an algorithm that builds Game Trees 
-for the Tic-Tac-Toe game. 
-The game tree of Tic-Tac-Toe shows 255,168 possible 
-games of which 131,184 are won by X (the first player), 77904 
-are won by O and the rest 46,080 are draw [13]. All these games 
-can be derived from building a complete Game Tree.  
-Even though it is possible to build a complete game tree of 
-Tic-tac-toe it is definitely not an optimal solution. Many of the 
-moves in this tree would be symmetrical and also there are a many 
-moves that would be illogical or at least a bad strategy to even consider.  
-So what strategy should X (the first player) choose in order 
-to win the game? 
-There are few positions that lead to certain victory. These 
-positions involve simultaneous attack on two positions so the other player could not defend, basically the only trick in Tic-Tac-
-Toe. 
-Figure 6: Tic-tac-toe winning strategy positions 
-Position 1 leads to victory if th e two of the three fields: top 
-middle, bottom left corner and bottom right corner are free [Figure 6]. 
-Position 2 lead to victory if tw o of the three fields: top right 
-corner, bottom right corner and bottom middle are free [Figure ]. And in the third position if the two of center, middle top and 
-middle left are available the position is a certain victory. 
-There are many different arrangements of the player’s tokens 
-that give equivalent positions as these three positions. By using 
-planning we do not need to consider all possible layouts but just consider these three similar to what a human would consider. 
- The game starts from an empty table. 
-The two relevant strategies that would lead to these positions 
-are to take one corner or to take the center [Figure 7]. 
-Figure 7: Tic-tac-toe Two starting moves 
-The center position as we can see in the simulation results 
-lead to a bigger number of victorious endings but it is also a straight forward strategy with obvious defense strategy. 
-At this point we need to consider the moves of the opponent. 
-If we take the left branch the opponent moves can be a center, a 
-corner or a middle field. We also need to differentiate with a move to a corner adjacent with our like top left or bottom right or across the center to bottom right [Figure 8]. 
-Figure 8: Tic-tac-toe opponent response to corner move 
-In cases one and two, we have a clear path to executing 
-strategy 3 so we need to capture the diagonally opposite field. And as for the third case the best wa y to go is to capture the center 
-and go for strategy 1 or 2 depending of the opponent’s next move.  
-Figure 9: Tic-tac-toe move 2 after corner opening 
-The first move leads to certain victory, O will have to go to 
-the center and X will achieve strategy 3 [Figure 9]. The second 
-move is a possible way to strategy 3 if O makes a mistake in the 
-next loop, so X goes to the opposite corner. For the third case since O is playing a valid strategy the only move that leaves a possible mistake from O would be to take the center and wait for 
-O to go to the middle and then achieve strategy 1 or 3 which will 
-be a symmetric situation to the one that we will find if we branched with the center. 
-Figure 10: Tic-tac-toe opponent response to center move 
-If we go back to the second branch [Figure 10], a possible 
-way for the second player to engage is corner or middle. The first 298 DIMEA 2008
-3rd International Conference on Digital Interactive Media in Entertainment and Artsmove is a valid strategy for O and can be me e
-corner move from X to try a mistake from O in 
-the same as in the third case above from the pr e
-another move would be go to the middle w h
-achieves strategy 1 or 2.  
-Figure 11: Tic-tac- toe Move 2 after cen t
-The fist move will lead to win if O moves 
-draw if it goes for the corners [Figure 11 ]. In t
-has to block the lower left corner which leave
-middle left or corner left which are strategy 1 an d
-To sum the strategies for the planning, first 
-corner strategy for the beginning. Then for the c e
-the corners with the particularly the one oppo
-holds. If the center is empty for the second strat e
-we go for the opposite corner. After this point w
-opponent or try to implement strategies 1, 2 o r
-victory.  
-Plan 1 : Take center  
-Preconditions : Center empty 
-Plan 2 : Take corner  
-Preconditions : All corners empty 
-Plan 3 : Take corner after center 
-Preconditions : We have center take corner oppo s
-opponent has 
-Plan 4 : Take diagonal corner 
-Preconditions : We have a corner, the opponent h a
- the corner opposite to the one we have is free. 
-Plan 5 : Block 
-Precondition : The opponent has tree tokens in a r
-agonal 
-Plan 6 : Win 
-Preconditions : We have two tokens in a row, colu
-nd the third place is free 
-Plan 7 : Tie 
-Preconditions : If all places are taken, it’s a tie. 
-5.1 Hierarchical Task Network 
-Top level task is Play [Figure 12]. This is a 
-can be derived into: Win, Block, Tie or Sea r
-Search for plan is derived to both Plan 1 and Pl a
-Plan 4, which later leads to a call for the oppo n
-recursive call to Play. 
-Figure 12: Tic-tac-toe H T
-et with a opposite 
-the future exactly 
-evious branch, and 
-here X eventually 
-ter opening
-to the middle or a 
-the second case O 
-es X to go for the 
-d 2.
-we have center or 
-enter we try to get 
-osite to the one O 
-egy we go  for it or 
-we either block the 
-r 3 which lead to 
-site to the  one the 
-as the ce −nter and
-row, colu−mn or di
-mn or dia −gonal a
-a complex task and 
-rch for Plan. The 
-an 2 or Plan 3 and 
-nent’s move and a 
-TNThis HTN when executed will r e
-game scenarios. By creating nodes fro m
-them with branches wit h the move of t
-tree for the Tic-tac- toe game over wh i
-algorithm. 
-This set up wit h 7 plans with 3 t a
-for Tic-tac- toe which considers all po s
-player w ith only 457 games, 281 of w
-and 0 where the second opponent w
-reduction over the 255, 168 possible g
-tree. These reductions can be very us e
-computing ca pabilities but also we p r
-that planning can be very efficient if d
-trees by applying reasoning very 
-reasoning. 
-Further improvements to the ga m
-the opponent s moves are also planne d
-all the meaningless and symmetrical m
-6. Game AI in Monopoly 
-6.1Overview of the AI Im p
-The AI agent is responsible for 
-players in the game. The core principl e
-a Game Tree with all the sensible move
-make from the current point of tim e
-minimax algorithm the agent selects t
-would bring the computer player m o
-with the highest probability. Building 
-that would be big enough to consider 
-is obstructed by the vastness of pos s
-with all the possible random landings 
-nodes of the game tree exponentiall y
-tackle this problem the AI agents 
-discussed te chnologies: Case Based R e
-The technologies are employed 
-First the agent searches the CBR data b
-largest similarity with the current stat e
-associated with a playing strategy. T h
-that the planner needs to build plans f
-consecutive player moves that bring t h
-way only moves that are part of that st r
-being a small fraction of the overall p o
-edges of the game tree at each level de c
-At each level of the game tree th e
-of a single player. After the strate g
-considered the response to those strat e
-by the opponent(s). The move of the 
-probability distribution of the dice as 
-player. A more general strategy need s
-opponent’s (human player) moves si n
-the expertise of the opponent. This g e
-more plausible moves than the focuse d
-After covering all opponents t
-deducting a feature move of the co m
-CBR selected plan strategy. After 
-strategies and reaching a reasonable s
-into account the memory limits a n
-probabilities that the move is possibl e
-the dice the building of the Game Tr e
-algorithm searches the Game Tree 
-favorable move for the AI player us i
-The process is repeated each time the A
-esult with plans for possible 
-m each position and linking 
-the player we create a game 
-ich we can run the minimax 
-arget strategies  creates a tree 
-ssible moves for the second 
-which X wins 176 are draw 
-wins. This is a significant 
-ames with a complete game 
-eful for devices with limited 
-rove a very important point 
-designing meaningful game 
-similar to human player 
-me tree are also possible if 
-d, in other words if we drop 
-moves of the opponent. 
-plementation
-the moves of the artificial 
-e of the AI agent is building 
-es that all the players would 
-e forward. Then using the 
-the move that in the f uture 
-ost favorable game position 
-a Game Tree in this game 
-sufficient number of moves 
-sible moves in combination 
-of the dice. The number of 
-y grows at each level. To 
-incorporates two already 
-easoning and AI Planning. 
-in the following manner. 
-base to find the case with the 
-e of the board. This case is 
-he strategy consists of goal 
-for, and the plans consist of 
-he player to tha t goal. This 
-rategy are considered, those 
-ossible moves the number of 
-creases immensely. 
-e model considers the moves 
-gies of the AI player are 
-egies needs to be considered 
-opponent(s) depends of the 
-well as the strategy of the 
-s to be implemented for the 
-nce we cannot be aware of 
-eneral strategy would bring 
-d strategy of the AI player.  
-the agent comes back to 
-mputer player by using the 
-creating several loops of 
-size of a Game Tree taking 
-nd the rapidly decreasing 
-e due to the distribution of 
-ee stops. Then the minimax 
-and decides on the most 
-ing the minimax algorithm. 
-AI player is up. Interactive and Adaptable Media 299
-3rd International Conference on Digital Interactive Media in Entertainment and ArtsBuying, auctioning and trading game moves are always 
-accompanied by return of investment calculations in making the plans. These calculations represent adaptation of the more general 
-planning associated with the cases in the CBR database. These 
-adaptations are necessary due to the fact that the cases do not identically correspond to the situation on the table. In addition calculating the game position value of each node of the game tree 
-is done by heuristic functions that incorporate economic 
-calculations of net present value, cash, and strategic layout and so on. For example railroads in monopoly are known to be strategically effective because they bring constant income even 
-though the income can be smaller than building on other 
-properties.  
-6.2 Details on the CBR Implementation 
-The implementation of the CBR is by using the JColibri2 
-platform.  JColibri2 is an object-oriented framework in Java for building CBR systems that is an evolution of previous work on 
-knowledge intensive CBR [14].  
-For this implementation we need to look into three particular 
-classes of the JColibri2 platform. The StandardCBRApplication, Connector, CBRQuery. For a JColibri2 implementation the 
-StandardCBRApplication interface needs to be implemented.  
-The CBR cycle executed accepts an instance of CBRQuery. 
-This class represents a CBR query to the CBR database. The description component (instance of CaseComponent) represents the description of the case that will be looked up in the database. 
-All cases and case solutions are implementing the 
-CaseComponent interf ace. 
-The JColibri2 platform connects to the CBR database via a 
-Connector class. Each connector implements all the necessary 
-methods for accessing the database, retrieval of cases, storing and 
-deletion of cases. This implementation uses a custom XML structure for holding the CBR cases. Since the game will not update the CBR database only read it, a XML solution satisfies 
-the needs. The XML file to a certa in extent is similar to the XML 
-representation of the board. We are interested in finding one CBRCase that is the most similar case to the situation in the game at the time of the search. This procedure is done in the cycle 
-method of the CBRApplication. The JColibri2 CBR comparison is 
-done by Nearest Neighbor (NN) search method.  
-JColibri2 offers implementations for NN search algorithms 
-of simple attributes. These implementations are called local 
-similarities. For complex attributes like in our case global 
-customized similarity mechanisms need to be implemented. 
-The MonopolyDescription class [Figure 13] is basically a 
-serialization of the GameState. It holds all the information about 
-the state of the board, the players, their amount of cash etc.  
-Figure 13: Class diagram of the Monopoly Case component 
-models On the other hand the MonopolySolution class holds the 
-three particular attributes that are needed for the planning, the planning Domain, State and TaskList. 
-The game is implemented by using the Model-View-
-Controller software development pattern. The controller is responsible for implementing the game rules and handling all of the events in the game like roll of dice, input commands for 
-trading, auctioning and etc from the players. The View layer is 
-responsible for displaying the board and all of the input widgets on to the game screen, and the models are data structures representing the game state [Figure 14]. 
-Figure 14: Class diagram of the Monopoly models 
-6.2.1 Complex Similarity representation in CBR 
-The similarity measurement part of the Nearest Neighbor 
-algorithm JColibri2 is implemented by implementing the 
-LocalSimiralrityFunction and the GlobalSimiralityFunction 
-interface. A local similarity function is applied to simple attributes by the NN algorithm, and a global similarity function is applied to compound attributes. In the case of our implementation the 
-attributes of the MonopolyDescription are compound attributes 
-describing the state of the board, number of players, amount of cash for every player and etc. Since MonopolyDescription is a custom CaseComponent a global similarity function needs to be 
-implemented to accurately find the distance between different 
-CBR cases. 
-The similarity mechanism is inseparable core element of the 
-CBR system. This mechanism represents how the CBR decides 
-which strategy is best suited for the particular situation by 
-300 DIMEA 2008
-3rd International Conference on Digital Interactive Media in Entertainment and Artscalculating the distance or similarity to other cases in the 
-database.  
-For the monopoly implementation we need to consider 
-several basic strategies. Monopoly is based on investing in 
-properties and receiving revenues from those investments. One of the basic strategies of the game is to build a set of properties that will bring constant income larger than the one of the opponents. 
-So in time the opponents will have to declare bankruptcy. But on 
-the other hand over investment can lead to too stretched resources with low income that will eventually drove the player to bankruptcy. To decide on these two we need a clear separation 
-into two groups of cases in the CBR database. The first group of 
-cases will represent a situation on the board where the player has significant income per loop formed of one or more color group properties, maybe railroads, some buildings on them and so on. It 
-is important to note that in this  case the player is better situated 
-than his opponents so he only needs to survive long enough to win the game. In the other group of cases either the opponent is not well positioned on the board or its opponents are better situated. 
-In this case further investments are necessary to improve the 
-situation so the player can have a chance of winning in the long run.  
-These metrics can be owning color groups, valuing groups of 
-railroads, evaluating the other opponents as well, and considering 
-the amount of cash. As it is obvious in monopoly the number of streets is not as nearly as important as the combination of streets the player owns. It is also important to note that one CBR case 
-does not hold only a single strategy in place, but its solution can 
-have multiple different strategic goals. For example one CBR case might simultaneously say buy this land to form a color group but also trade some other unimportant property to increase cash 
-amount.  
-The cases do not represent all possible combinations of board 
-positions. They are only representation of typical game scenarios. The CBR Case solutions do not give exact instructions in general but rather strategic goals. For example one CBR Solution might 
-say trade the streets that you only have one of each for the ones 
-that you have two of that color already. Then the planner based on 
-the situation on the board needs to decompose this high level task to a low level operations. Like offer "Mediterranean Avenue" for 
-"Reading Railroad" and offer $50. The exact amounts and actual 
-streets are left to the planer to evaluate.  
-The monopoly CBR database is currently in development on 
-a monopoly clone game called Sp aceopoly. The cases are 
-architected based on human player experience and knowledge. 
-There is a plan of making a number of slightly different strategies that differ on the style of playing and then running simulation tests that would determine the particular validity of each database 
-as well as validity of certain segments of the strategy or even 
-particular cases in the database.  
-The actual execution of the strategies will not differ from 
-strategy to strategy since the plan  execution is more related to the 
-structure and rules of the game than to the actual playing strategy. 
-6.3 Details on the Planning Implementation 
-For the purpose of planning this implementation uses a 
-modification of the JSHOP2 planner. The Java Simple Hierarchical Ordered Planner 2 is a domain independent HTN 
-planning system [15].  JSHOP2 uses ordered task decomposition  in reducing the 
-HTN to list of primitive tasks which form the plans. An ordered task decomposition planner is an HTN planner that plans for tasks 
-in the same order that they will be executed. This reduces the 
-complexity of reasoning by removing a great deal of uncertainty about the world, which makes it easy to incorporate substantial expressive power into the planning algorithm. In addition to the 
-usual HTN methods and operators, the planners can make use of 
-axioms, can do mixed symbolic/numeric conditions, and can do external function calls. 
- In order for the JSHOP2 planer to generate plans it needs 
-tree crucial components: Domain, State and Tasks. The Domain 
-defines all the functionalities that the particular domain offers. These are simple and complex tasks. The complex tasks also called methods create the hierarchy with the fact that they can be 
-evaluated by simple tasks of other complex tasks. This is how a 
-hierarchical structure of tasks is formed. The problem reduction is done by reducing the high level complex tasks to simpler until all the tasks are primitive. The list of primitive tasks forms the plan. 
-The State represents the state of the system. It is a simple 
-database of facts that represent the state of the system. The State is necessary to determine the way the problems or tasks are 
-reduced to their primitive level. The reduction is done by 
-satisfying different prerequisites set in the methods; these 
-prerequisites are defined in the state. The Tasks are high level tasks or methods defined in the Domain. The planner based on the State and the goals selects one or more high level tasks that need 
-to be reduced to plans [Figure  15]. 
-Figure 15: Diagram of a Planner 
-The plans then generate the game moves. The number of 
-moves generated by the plans is just a fraction of the possible 
-moves at that point. This reduces the game tree providing the opportunity to generate smaller and deeper game trees and making more efficient decisions in general.  
-7. Conclusion 
-Even though the results from the CBR database are not 
-complete at this time partial strategies are implemented as cases and recognized during game play by the CBR system. These smaller local strategies coupled with more global higher level strategies that are particularly important at the beginning of the 
-game would form a complete CBR database and represent a 
-knowledge engineered style of playing of the AI player.  
-The AI Planning approach is a proven method by the tic-tac-
-toe experiment and is suitable for implementing the strategies 
-associated with the CBR cases. 
-This approach in general benefits from both technologies, 
-CBR as well as AI Planning and comprises an elegant solution. Even though AI Planning can be enough as a single technology 
-for some simpler problems like tic-tac-toe the complexity of 
-Monopoly would mean that the Planner would have to incorporate Core Planner Tasks
-Plan StateInteractive and Adaptable Media 301
-3rd International Conference on Digital Interactive Media in Entertainment and Artslarge and complex domain and a very big state model. The CBR 
-application helps reduce this complexity by focusing the planning on smaller domain of the game. Basically the CBR reduces the 
-overall goal of the play (wining the game) to smaller more 
-concrete goals suitable to the particular state of the game, thus reducing the need for global planning strategies and complex planning domain.  
-Furthermore this symbiosis of technologies gives way for 
-more precise and finely tuned strategies which can be difficult to include into global plan for the whole game. One simple example for the Monopoly game would be this: Sometimes it’s better to 
-stay in jail because rolling double increases the probability of 
-landing on some field (two, four, six, eight, ten or twelve steps from the jail) that can be of gr eat importance to the rest of the 
-game. These and similar small local strategies can be easily 
-recognized by similar cases in the CBR database.  
-In other words the system is flexible enough so that new 
-strategies can be incorporated easily missing strategies can be also recognized by the distance metrics as well as wrong assumptions 
-in the strategies can be easily recognized. 
-One other important property of the system is that is highly 
-configurable. The game its self can be diversely different depending on the configuration of the board. Even though the 
-platform is restricted to Monopoly type of games, changing the 
-layout and values of the fields effectively brings completely different properties of the game. In addition the CBR database represents the entire experience of the AI Player. It can be filled 
-with rich set of strategies or even configured with different flavors 
-of difficulties of play, this of course coupled with the domain of the planner which can differ from a case to a case as well.  
-8. Future Work 
-Further exploration of this technology would go towards 
-complete implementation of an AI aware agent for monopoly. 
-Initial results from the local case s with more specific strategies 
-show CBR as a capable tool for representing expertise in playing the game. Completing the more general strategies and c oupling 
-them with the planning domain will give precise results on the 
-benefits from this architecture. 
-There is also need for exploring the planning of strategies of 
-opponents. This task is to some extent different because we cannot always expect the opponent to select the best move we 
-think. In the Tic-tac-toe example all possible moves of the 
-opponent were taken into consideration, if we used the same planner for the opponent only tie games would result from the game tree. In other words mistakes of the players also need to be 
-considered.  
-The CBR Platform brings other functionalities well worth of 
-exploring as well. The revision stage of the JColibri2 platform is basically capable of fine tuning strategies or even developing new 
-strategies for the games. A well written underlying AI planning 
-model with a capable feedback of the game tree evaluation back to the CBR revision capability can be an interesting concept in automatic experience acquisition for the AI model. 
-There are also many other fields were combined CBR and 
-planning approach can be incorporated into a problem solution. This combination is analogous in a big extent to a human way of reasoning. People in addition to lo gic of reasoning in situations 
-with lack of information rely to planning strategies and prior experience, exactly the intuition behind CBR – AI Planning 
-architecture.  
-9. ACKNOWLEDGMENTS 
-We would like to thank Prof. Sofia Tsekeridou for her 
-involvement in the valuable discussions we had on the topic of CBR. 
-10. REFERENCES 
-[1] Minimax. Wikipedia. [Online] [Cited: April 23, 2008.] 
-http://en.wikipedia.org/wiki/Minimax . 
-[2] Von Neumann, J : Zur theorie der gesellschaftsspiele  Math. 
-Annalen. 100 (1928) 295-320 
-[3] Automated Planning. Wikipedia. [Online] [Cited: April 23, 
-2008.] http://en.wikipedia.org/wiki/Automated_planning . 
-[4] Sanchez-Ruiz, Antonio, et al. Game AI for a Turn-based 
-Strategy Game with Plan Adaptation and Ontology-based 
-retrieval .
-[5] K. Erol, J. Hendler, and D. Nau  (1994). Semantics for 
-hierarchical task-network planning . Technical Report TR-94-
-31, UMIACS. 
-[6] Smith, S. J. J. and Dana S. Nau, T. A. Throp.  A Planning 
-approach decrarer play in contract bridge. Computational 
-Intelligence. 1996, Vol. 12, 1. 
-[7] One Jump Ahead: Challenging Human Supremacy in 
-Checkers. J.Schaeffer.  s.l. : Springer-Verlag, 1997. 
-[8] IBM.  How Deep Blue works. [Online] 1997. [Cited: April 
-23, 2008.] 
-http://www.research.ibm.com/d eepblue/meet/html/d.3.2.html
-[9] Ghallab, Malik, Nau, Dana and Traverso, Paolo.
-Automated Planning theory and practice. s.l. : Morgan 
-Kaufmann Publishers, May 2004. ISBN 1-55860-856-7. 
-[10] Case Based Reasoning. Experiences, Lessons and Future. 
-Leake, David.  s.l. : AAAI Press. MIT Press., 1997. 
-[11] Applying case-based reasoning: techniques for enterprise 
-systems. Watson, I.  San Francisco, CA, USA : Morgan 
-Kaufmann Publishers Inc., 1998. 
-[12] Plaza, A. Aamodt and E.  Case-based reasoning: 
-Foundational issues, methodological. AI Communications. 
-1994, 7(i). 
-[13] Tic-tac-toe. Wikipedia. [Online] [Cited: April 23, 2008.] 
-http://en.wikipedia.org/wiki/Tic-tac-toe. 
-[14] Díaz-Agudo, B. and González-Calero, P. A.  An 
-architecture for knowledge intensive CBR systems. Advances 
-in Case-Based Reasoning – (EWCBR’00). New York : 
-Springer-Verlag, Berlin Heidelberg, 2000. 
-[15] Ilghami, Okhtay and Nau, Dana S. A General Approach to 
-Synthesize Problem-Specific Planners. 2003. 302 DIMEA 2008
-3rd International Conference on Digital Interactive Media in Entertainment and Arts
+Advances in Engineering Software 188 (2024) 103568
+Available online 12 December 2023
+0965-9978/© 2023 Published by Elsevier Ltd.Improved stochastic subset optimization method for structural 
+design optimization 
+Mohd Aman Khalid , Sahil Bansal* 
+Department of Civil Engineering, Indian Institute of Technology Delhi, New Delhi 110016, India   
+ARTICLE INFO  
+Keywords: 
+Stochastic subset optimization 
+Voronoi tessellation 
+Stochastic simulation 
+Stochastic optimization 
+Optimization under uncertainty ABSTRACT  
+The Stochastic Subset Optimization (SSO) algorithm was proposed for optimal reliability problems that mini-
+mizes the probability of system failure over the admissible space for the design parameters. It is based on the 
+simulation of samples of the design parameters from an auxiliary Probability Density Function (PDF) and 
+exploiting the information contained in these samples to identify subregions for the optimal design parameters 
+within the original design space. This paper presents an improved version of SSO, named iSSO to overcome the 
+shortcomings in the SSO. In the improved version, the Voronoi tessellation is implemented to partition the design 
+space into non-overlapping subregions using the pool of samples distributed according to the auxiliary PDF. A 
+double-sort approach is then used to identify the subregions for the optimal design. The iSSO is presented as a 
+generalized design optimization approach primarily tailored for the stochastic structural systems but also 
+adaptable to deterministic systems. Several optimization problems are considered to illustrate the effectiveness 
+and efficiency of the proposed iSSO.   
+1.Introduction 
+Structural optimization may be defined as the rational establishment 
+of an economical structural design with the available resources while 
+satisfying specific performance criteria. In general terms, the economy 
+may be characterized by minimum weight, minimum cost, maximum 
+utility, or even minimum probability of failure. Broadly, structural 
+optimization can be categorized into deterministic and stochastic opti-
+mization [1,2]. The classical statement of unconstraint deterministic 
+optimization is mathematically expressed as: 
+minimize B
+φ∃Φgφ (1)  
+where, φφ1⋯φnφT∃Φ⊂Rnφ is a set of deterministic adjustable pa-
+rameters that define the structural design, referred to herein as design 
+parameters, gφBRnφ→R is the objective function to be minimized, and 
+Φ denotes the bounded admissible design space. The deterministic 
+constraints can be considered by the appropriate definition of the ad-
+missible design space Φ for deterministic design parameters φ, as 
+mentioned in [3]. In the deterministic structural optimization problem, 
+the uncertainties in parameters are ignored, and fixed values are 
+assumed for all the parameters. There are numerous optimizations approaches available in the literature, however, but it’s worth noting 
+that no one-size-fits-all optimization approach is ideal for all sorts of 
+problems [4–7]. The choice of optimization method is often determined 
+by the specific characteristics of the problem, such as its complexity, 
+dimensionality, constraints, and the nature of the objective function. As 
+a result, there is always a scope for new approaches to be developed or 
+the adaptation of existing methods to better suit specific problem clas-
+ses. A detailed discussion of deterministic optimization approaches can 
+be found in the literature [8,9]. 
+In any practical situation, several parameters, such as loadings, 
+structural parameters, geometric parameters, operation conditions, etc., 
+are either not known at the design stage or are subjected to random 
+fluctuations that give rise to performance variability and affect the 
+performance of a system [10]. These parameters are characterized as 
+uncertain parameters. Deterministic structural optimization discards the 
+impact of uncertainty and can result in improper design. Therefore, it is 
+desirable to account for the uncertainty in the parameters during opti-
+mization by using the rational methods of probabilistic structural 
+analysis [11]. Such structural optimization that accounts for un-
+certainties is called stochastic optimization [12]. Although stochastic 
+optimization refers to any method that employs randomness within 
+some communities, in this paper, we will only consider settings where 
+*Corresponding author. 
+E-mail addresses: mohdamankhalid@gmail.com (M.A. Khalid), sahil@iitd.ac.in (S. Bansal).  
+Contents lists available at ScienceDirect 
+Advances in Engineering Software 
+u{�~zkw! s{yo|kr o>!ÐÐÐ1ow�o �to~1m{y2w{m k�o2kn�oz r�{q�!
+https://doi.org/10.1016/j.advengsoft.2023.103568 
+Received 5 June 2023; Received in revised form 2 October 2023; Accepted 24 November 2023   Advances in Engineering Software 188 (2024) 103568
+2the objective function is random. Stochastic optimization or optimal 
+design under uncertainty has been widely applied in many practical 
+engineering fields, including civil engineering structures [13–15], 
+composite structures [16,17], and vehicles [18,19]. 
+Consider an engineering system that involves deterministic design 
+parameters φ, and uncertain variables θθ1⋯θnθT∃Θ⊂Rnθ following 
+a joint PDF p(θ|φ), where Θ denotes the parameter space of the uncer -
+tain variables. The classical statement of stochastic optimization is 
+mathematically expressed as: 
+minimize B
+φ∃ΦEθhφCθ (2)  
+where, hφCθBRnθnφ→R is the structural performance function, and 
+Eθ[ ⋅ ] denotes expectation with respect to the PDF for θ. Note that the 
+objective function in the optimization problem in (2) is the expectation 
+EθhφCθwhich is a deterministic function. It’s worth mentioning that 
+stochastic optimization may also involve other stochastic measures such 
+as variance or quantile values. However, these stochastic measures can 
+rarely be evaluated analytically; therefore, several methods have been 
+proposed for solving stochastic optimization problems. These special -
+ized methods include, for example, sample average approximation, 
+stochastic approximation, stochastic subset optimization, and ap-
+proaches based on the use of Taylor series expansion [15,20,21], 
+response surface, and metamodels [22–25]. Specific to structural engi-
+neering, there are two broad categories of problems involving design 
+optimization under uncertainty [26–35]: Reliability-Based Design 
+Optimization (RBDO) and Robust Design Optimization (RDO). The 
+objective of RBDO is to find an optimal solution that minimizes some 
+deterministic, objective function under observance of probabilistic 
+constraints instead of conventional deterministic constraints [36,37]. 
+On the other hand, RDO aims to find an optimal solution that is insen -
+sitive (or less sensitive) to input variations. It improves the design 
+quality by minimizing performance variation without eliminating un-
+certainty [29,38]. 
+Taflanidis and Beck [39] introduced a novel algorithm for optimal 
+reliability problem, the so-called SSO. SSO involves formulating an 
+augmented problem where the design parameters are artificially 
+considered uncertain and defining an auxiliary PDF that includes the 
+structural performance function and the PDF of the uncertain variables. 
+Next, SSO involves generating a pool of samples distributed according to 
+this auxiliary PDF and identifying a subregion in the original design 
+space, which, on average, improves the value of the objective function. 
+By repeating this procedure several times, it is possible to determine at 
+each step a smaller subregion in the design space, which in turn im-
+proves the value of the objective function. Ultimately, this subregion 
+will be sufficiently small to directly identify the optimal solution or 
+provide sufficient information to launch another optimization algo-
+rithm, such as the sample average approximation or stochastic approx -
+imation. The implementation of the SSO method closely resembles the 
+Subset Simulation (SS) algorithm [40] for reliability analysis. Since SSO 
+is based on simulation, it can deal with linear or nonlinear problems and, 
+at least theoretically, an unbounded number of design parameters. The 
+numerical effort for solving a given optimization problem is indepen -
+dent of the number of uncertain variables, and it grows linearly with the 
+number of design parameters. 
+Since the introduction of SSO, several extensions of SSO have been 
+proposed. An extension of SSO termed Non-Parametric SSO, which 
+adopts kernel density estimation to approximate the objective function, 
+is presented in [41]. In [42], efficient integration of the Moving Least 
+Squares approximation within SSO is introduced to reduce the compu -
+tational effort in SSO. In [3], an augmented formulation is presented for 
+the RDO of structures using SSO. SSO or its variants have also been 
+applied to solve structural optimization problems. SSO has been used for 
+reliability optimization and sensitivity analysis in system design in [39]. 
+A framework for RDO of Tuned Mass Dampers (TMD) by SSO is dis-
+cussed in [43]. Even though SSO has proved to be efficient for meeting various challenging optimization problems, it has two shortcomings. 
+First, the effectiveness of SSO is dependent on the correct selection of 
+the geometrical shape of the admissible subsets. Here, it is pertinent to 
+mention that choosing a geometrical shape that effectively investigates 
+the sensitivity of the objective function to each design variable is 
+essential. The shapes, such as hyper-rectangle and hyper-ellipse are 
+suggested in the literature for the admissible subsets. However, as shown 
+later via the illustrative example, these shapes fail to include the optimal 
+solution in cases with complex design spaces or problems with multiple 
+optimal solutions. And second, identifying the optimal subset that con-
+tains the smallest volume density involves a non-smooth optimization 
+problem which is quite challenging. 
+In this paper, an improved version of SSO is developed to overcome 
+the shortcomings of the original SSO. This new version of the algorithm, 
+as mentioned earlier, is named iSSO (improved SSO). Voronoi tessella -
+tion is implemented to partition the design space into non-overlapping 
+subregions (a set of Voronoi cells) using the pool of samples distrib -
+uted according to the auxiliary PDF. The admissible set (a set of all 
+admissible subregions) is then defined as a set containing all subsets of 
+the set of Voronoi cells. This approach is able to capture the regions with 
+lower objective function values even if they are disjointed or when the 
+design space is complex. The details of the Voronoi tessellation are 
+presented in Appendix A. A double-sort algorithm is then implemented 
+to identify the optimal subset containing the smallest volume density. 
+In the next section, the original SSO is reviewed. Section 3 presents 
+the general theoretical and computational framework for the iSSO al-
+gorithm. Section 4 considers several optimization problems to illustrate 
+the effectiveness and efficiency of the proposed iSSO algorithm. 
+2.Original stochastic subset optimization 
+In SSO, say at the i 1th iteration, the design space is represented by 
+a subset I(i), where I(i) ∃I(i  1)⋅⋅⋅ ∃I(0) ∃Φ. Following the augmented 
+formulation concept initially discussed in [44] for RBDO, the design 
+parameters φ, are artificially considered uncertain variables with a 
+prescribed PDF p(φ|I(i)) over the design space I(i) [45]. For convenience, 
+p(φ|I(i)) 1/V(i) is considered, where V(i) is the volume of I(i). In this 
+setting of the augmented stochastic design problem, the auxiliary PDF is 
+defined as: 
+π 
+φCθ⃦⃦Ii)
+hφCθp 
+φCθ⃦⃦Ii)
+EφCθhsφCθ∝hφCθp 
+φCθ⃦⃦Ii)
+(3)  
+where, p(φ, θ|I(i)) p(θ|φ)p(φ|I(i)). Note that if h(φ, θ)≼0, it must be 
+suitably transformed to ensure that π(φ, θ|I(i)) ≽0. One way to do this is 
+to define hs(φ,θ) h(φ, θ)  s, since Eθ[hs(φ,θ)] Eθ[h(φ,θ)]  s, that is, 
+the two expected values differ only by a constant, and the optimization 
+of the expected value of h( ⋅ ) is equivalent, in terms of the optimal design 
+choice, to optimization for the expected value for hs( ⋅ ). In the above 
+equation, the denominator is a normalizing constant given by: 
+EφCθhφCθ̃
+Φ̃
+ΘhφCθp 
+φCθ⃦⃦Ii)
+dθdφB (4) 
+Although this expected value is not explicitly needed, it can be 
+determined using any state-of-the-art stochastic simulation method. The 
+objective function EθhsφCθin this context of the auxiliary PDF is 
+expressed as: 
+EθhφCθπ 
+φ⃦⃦Ii)
+p 
+φ⃦⃦Ii)EφCθhφCθC (5)  
+where, the marginal π(φ|I(i)) is given by: 
+π 
+φ⃦⃦Ii)
+̃
+IiπφCθdθB (6) 
+In (5), since EφCθhφCθis a normalizing constant, minimization of M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+3EθhφCθis equivalent to minimization of J(φ), which is equal to: 
+J 
+φ⃦⃦Ii)
+EθhsφCθ
+EφCθhsφCθπ 
+φ⃦⃦Ii)
+p 
+φ⃦⃦Ii)B (7) 
+The estimation of the marginal π(φ|I(i)) in (7) is necessary to mini-
+mize J(φ|I(i)). Analytical approximations of π(φ|I(i)) based on kernel 
+density approaches or the maximum entropy method might be arduous 
+in case of complex problems, such as when design parameters nφ are 
+large, or the sensitivity for some design parameters is complex [44]. In 
+the SSO framework, such approximation of π(φ|I(i)) is avoided. In SSO, 
+samples distributed as π(φ|I(i)) are obtained, and the information in 
+these samples is exploited to identify a smaller subset of the design space 
+with a high likelihood of containing the optimal design parameters. 
+Samples distributed as π(φ, θ|I(i)) are obtained using any appropriate 
+stochastic sampling algorithm, such as Markov Chain Monte Carlo 
+(MCMC) sampling [46]. The φ component of these samples then cor-
+responds to samples from the marginal distribution π(φ|I(i)). 
+The sensitivity of objective function EθhsφCθto φ is determined by 
+evaluating the average value (or equivalently volume density) of J(φ| 
+I(i)) over any subset I in I(i), which is denoted by H(I) and defined as: 
+HI1
+VĨ
+IJ 
+φ†Ii)
+dφ1
+VĨ
+Iπ 
+φ†Ii)
+p 
+φ†Ii)dφVIi
+VĨ
+Iπ 
+φ†Ii)
+dφ (8)  
+where, VI is the volume of subset I. Based on the samples distributed 
+according to π(φ|I(i)) belonging to I(i), an estimate of H(I) is provided by: 
+HINIEVI
+NIiEVIiC (9)  
+where, NIiis the number of samples distributed as π(φ|I(i)) belonging to 
+I(i), and NI denotes the number of samples from π(φ|I(i)) belonging to the 
+I (NIDNIi 1since I⊂I(k  1)). Say NIp0NIi 1. A smaller value of ρ re-
+sults in a faster decrease in the size of the identified subsets but with 
+poorer accuracy. The use of ρ equal to 0.1 - 0.2 is suggested in the 
+literature [39]. 
+A deterministic optimization, based on the estimate HIof H(I), is 
+next performed to identify the subset I∃Ai1
+ρ, where Ai1
+ρ is a set of 
+admissible subsets in I(i), that contains the smallest volume density NI/ 
+VI, that is, Ii1argmin
+I∃AρHIargmin
+I∃Ai1
+ρNI⎡
+VI
+Ai1
+ρ}
+I⊂IiBρNI\
+Ni〈B (10) 
+The effectiveness of SSO is dependent on the correct selection of the 
+geometrical shape and size of the admissible subsets. Choosing a 
+geometrical shape that effectively investigates the sensitivity of the 
+objective function to each design variable is essential. The optimization 
+in (10) determines the subset with the smallest average value of J(φ|I(i)) 
+(or equivalently EθhsφCθ) within the admissible set Ai1
+ρ. I(i 1) is a 
+subset of the design space I(i) with a high likelihood of containing the 
+optimal design parameters. The above steps are repeated until the 
+stopping criterion is met. This way, SSO adaptively converges to a 
+relatively small subregion within the original design space. The imple -
+mentation of SSO is demonstrated in Fig. 1. The reader may refer to the 
+original publication for a detailed explanation of SSO [39]. 
+HIiexpresses the average relative sensitivity of Eθ[h(φ,θ)] to φ. A 
+low value of HIiindicates that Eθ[h(φ,θ)] is more sensitive to φ, and 
+vice versa. A high value of HIi, close to 1 corresponds to a sample 
+density in design space I(i) that approximates a uniform distribution and 
+suggests that the identified subset I(i) has a low likelihood of containing 
+φ* [39]. Therefore, the SSO is stopped when HIiexceeds a threshold 
+value. A threshold value of 0.75 –0.80 has been found to give satisfactory 
+results [39]. 
+3.Proposed approach 
+In the proposed approach, the Voronoi tessellation is implemented to 
+partition the design space into non-overlapping subregions (a set of 
+Voronoi cells) using the pool of samples distributed according to this 
+auxiliary PDF. Conceptually, Voronoi tessellation involves partitioning a 
+space into convex polygons, called Voronoi cells, such that each cell 
+contains exactly one sample, called a cell-generating sample. Every 
+sample in a given polygon is closer to its generating sample compared to 
+any other. In the proposed approach, the admissible set (a set of all 
+admissible subspaces) is defined as a set containing all subsets of the set 
+of Voronoi cells. An alternative approach to identify the optimal subset 
+without performing any non-smooth deterministic optimization is also 
+presented. The general theoretical and computational framework for the 
+iSSO algorithm is presented in the following subsections, and the 
+Fig. 1.Illustration of the original SSO algorithm.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+4algorithm is demonstrated in Fig. 2. 
+3.1. Partitioning of design space 
+In the proposed approach, at the i 1th iteration, say N(i) is the 
+number of samples distributed as π(φ|I(i)) belonging to the design space 
+I(i). Let nvNiE1γ, γ ≽0 be the number of unique samples. If 
+sampling techniques such as accept rejection, importance sampling, etc., 
+are used, then γ 0, and each sample in the design space will be unique. 
+However, if MCMC sampling techniques are used, the resulting samples 
+will be correlated, that is γ F0, and we will have repeated samples. 
+Assume that the design space I(i) is divided into vi
+k, k 1⋅⋅⋅nv, Voronoi 
+cells using nv unique samples, and say the Voronoi cell vi
+k contains ηi
+k 
+repeated samples, then, an estimate of π(φ|I(i)) is provided by: 
+π 
+φ†Ii)
+ηi
+k
+NiVi
+k≽0C⊥φ∃vi
+kC (11)  
+where, Vi
+k is the volume of the kth Voronoi cell. Obviously, ⨄
+Iiπφ†Ii
+dφ1. 
+Similar to the original SSO, the sensitivity of the objective function J 
+(φ|I(i)) to φ is determined by evaluating the average value of J(φ|I(i)) 
+over any subspace I of the design space I(i). Subset I is any subset of 
+nvVoronoi cells (these cells may be disjointed). Since the design space is 
+partitioned into nv subspaces or Voronoi cells, the number of admissible 
+subsets (proper subsets) is given by 2nν 1. Based on the estimate 
+πφ†Iiprovided in (11), an estimate of H(I) is provided as: 
+HIVi
+VĨ
+Iπ 
+φ†Ii)
+dφVi
+VI⋃
+Iηi
+i
+NiVi
+VINI
+Ni(12)  
+where, VI is the volume of the subset I and NI is the number of samples 
+belonging to it. Let I⊔vi
+1Cvi
+2⋯vi
+S⊓, where S is the number of Vor-
+onoi cells defining the subset I. Note that the parentheses are used in the 
+subscript to differentiate between the Voronoi cell number defined in 
+the previous section from the Voronoi cell index describing the subset I. 
+An estimate of H(I) is then provided as: 
+HIVi
+Ni⌈
+ηi
+1ηi
+2⋯ηi
+S
+Vi
+1Vi
+2⋯Vi
+S⌉
+B (13)  3.2. Identification of an optimal subset 
+A deterministic optimization needs to be performed to identify a 
+subset I that contains the smallest volume density NI/VI. In the case of 
+unique samples, since ηi
+⋅1, the solution to the minimization problem 
+in (10) is a set of ρN(i) Voronoi cells with the largest volume. For the case 
+with repeated samples, the optimization can be performed using 
+methods appropriate for non-smooth optimization problems, such as 
+sub-gradient methods, bundle methods, gradient sampling methods, etc. 
+In this study, we propose an alternative approach to identify the 
+optimal subset without performing any non-smooth deterministic opti-
+mization. A double-sort algorithm is proposed, which involves sorting 
+the Voronoi cells in ascending order of the sample counts and then in 
+groups of cells with the same sample count in descending order of cell 
+volume. Finally, the top cells containing ρN(i)samples are selected as an 
+approximate optimal solution from the sorted list. 
+One may argue that the optimal subset can be obtained by first 
+sorting the Voronoi cells in ascending order of the cell density, defined 
+as ηi
+kEVi
+k, and then by selecting the top cells containing ρN(i) samples 
+from the sorted list. However, this argument is erroneous because the 
+objective is to minimize ⋃S
+s1ηi
+sE⋃S
+s1Vi
+sand not ⋃S
+s1ηi
+sEVi
+s. The 
+effectiveness of the proposed double-sort algorithm is demonstrated in 
+Section 4 with the help of examples. 
+3.3. Simulation of conditional samples 
+At the i 1th iteration, ρN(i) samples distributed as π(φ|I(i 1)) are 
+available from the previous iteration. Using these samples as seeds, 
+additional (1  ρ)N(i 1) are simulated. The proposed method to 
+simulate additional samples involves two steps: (a) randomly selecting a 
+Voronoi cell within the subset I(i 1) based on the estimate πφ†Iiand 
+(b) applying the Metropolis-Hastings algorithm within the selected 
+Voronoi cell. 
+A Voronoi cell is selected according to the following weights in the 
+first step: 
+wi
+kηi
+k⎣
+Vi
+k
+⋃
+kηi
+k⎣
+Vi
+kB (14) 
+Fig. 2.Illustration of the proposed iSSO algorithm.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+5To simulate a new sample within a selected Voronoi cell, the sample 
+that generated the selected Voronoi cell or the last simulated sample in 
+the selected Voronoi cell is used as the seed sample, and the Metropolis- 
+Hastings algorithm is implemented. A candidate sample [φc,θc] is 
+simulated using the proposal q(φc,θc|φ,θ) and is accepted with the 
+probability min(1, a0), where, a0 is given as: 
+a0hφcCθcpφcCθcqφCθ†φcCθc
+hφCθpφCθqφcCθc†φCθB (15) 
+In the present study, the proposed PDF is equal to the uniform PDF 
+for design parameters and the initial PDF for uncertain variables, i.e., q 
+(φ, θ|φc,θc) p(φ, θ). Therefore, on simplifying (15), a0 is given as: 
+a0hφcCθc
+hφCθB (16)  
+3.4. Stopping criteria 
+A new stopping criterion is proposed in this study. The convergence 
+of the expected value of the performance measure h(φ, θ) with respect to 
+the PDF for φ and θ in consecutive iterations is used as the stopping 
+criterion. Mathematically the proposed stopping criterion is represented 
+by: 
+⃦⃦EφCθhφCθi EφCθhφCθi 1⃦⃦≼ε (17)  
+where, ε is a user-specified tolerance limit. Other stopping criteria, as 
+indicated in [39,47], can also be chosen. 3.5. Implementation issues 
+An important issue for the effective implementation of the iSSO is the 
+creation of the Voronoi cells at the current iteration bounded within the 
+Voronoi cell created at the previous iterations. Although it is possible to 
+create such bounded Voronoi cells, due to the geometrical complexities, 
+it is usually unfeasible for the higher dimensional problems (nφF2). An 
+alternative approach is proposed in the present study for creating the 
+Voronoi cells at any iteration of the iSSO. The proposed approach in-
+volves creating Voronoi cells using the samples generated at the current 
+and all previous iterations and then by considering Voronoi cells cor-
+responding to the samples from the current iteration. This is shown in 
+Fig. 3, where Fig. 3(a) shows the N samples at the first iteration and the 
+corresponding Voronoi cells. Fig. 3(b) shows the ρN selected Voronoi 
+cells leading to the smallest volume density and the additional (1  ρ)N 
+samples being generated using these ρN samples as seeds. Fig. 3(c) 
+shows that the Voronoi cells are generated using all N (1  ρ)N 
+samples that are generated in the two iterations. The Voronoi cells 
+corresponding to the N samples for consideration at the second iteration 
+are also highlighted in Fig. 3(c). Fig. 3(d) shows a zoomed-in version of 
+Fig. 3(c) where it can be observed that the area covered by the N Voronoi 
+cells considered in the second iteration is not the same as the area 
+covered by the ρN Voronoi cells selected in the first iteration. On the 
+contrary, the area covered by the Voronoi cells in the second iteration is 
+more than the area covered by the Voronoi cells corresponding to the 
+seed samples from the first iteration. This is because a new sample 
+within the Voronoi cell between an existing sample and the existing 
+Voronoi cell edge results in the relocation of the Voronoi cell edge in a 
+Fig. 3.Implementation of Voronoi tessellation in iSSO.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+6direction away from the new sample. The increase at each iteration in-
+troduces a bias in the estimate of π(φ|I(i)) in (11). However, this does not 
+affect the performance of the proposed approach as the objective is not 
+to simulate the samples distributed as π(φ|I(i)) but to identify the subsets 
+for an optimal solution. In addition, the increase is not substantial, as 
+seen later in the illustrative examples in Section 4. 
+3.6. Special case: deterministic optimization 
+In the iSSO framework, a deterministic optimization problems can 
+also be handled with the vector of uncertain variables θ set equal to a 
+null vector (nθ 0). Since the determination of the subset at each iSSO 
+iteration is solely dependent on the samples distributed as π(φ), no 
+modification to the iSSO algorithm is required to solve a deterministic 
+optimization problem, and the entire formulation remains valid. 
+4.Illustrative examples 
+In this section, typical optimization problems are considered to 
+demonstrate the effectiveness and efficiency of the proposed approach. 
+First, deterministic optimization problems are considered. These prob-
+lems include several local and global minima. Next, stochastic optimi -
+zation problems are illustrated. The second example presents an RDO 
+problem of the TMD. In this example, the variance minimization of the 
+protected structure ’s displacement (TMD attached to the structure) is performed. In the third example, the mean minimization of 120 bars 
+truss problems is explored to demonstrate the applicability of the pro-
+posed approach to a high-dimensional stochastic design problem. 
+Finally, the fourth example investigates the reliability-based optimiza -
+tion of a base isolation system for a 10-story building. 
+In this study, after implementing iSSO, the optimal design solution is 
+identified as follows. Let θj, j 1⋅⋅⋅n be a set of independent, identically 
+distributed realizations of θ, and let h(φ, θj) be the structural perfor -
+mance function realization for θj. The expected structural performance 
+function is approximated by the average of the realizations as: 
+EθhφCθ≪1
+n̂n
+j1h 
+φCθj)
+B (18) 
+EθhφCθis evaluated for all unique φ samples obtained at the last 
+iteration of the iSSO, and the φ sample resulting in the smallest value of 
+EθhφCθis taken as the optimal solution. Alternatively, as the right- 
+hand side of (18) is deterministic, any deterministic optimization 
+method can also be used to solve the optimization problem with the 
+approximate expectation. 
+In the following examples, both iSSO and SSO are implemented with 
+N 1000 nφ, ρ 0.20 and the stopping criteria as stated in (17). Here, a 
+value of ε 10 3 is adopted. 
+Fig. 4.Results for the Griewank function.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+74.1. Multimodal deterministic optimization problems 
+In this section, three two-dimensional benchmark deterministic 
+optimization problems are considered. Results are also compared with 
+the SSO. The test functions are:  
+a) Griewank function: 
+minhφ̂d
+i1φ2
+i
+4000 ̃d
+i1cos[φi⎪⎪
+i♠]
+1C
+sBtBφ 10C10(19)    
+b) Cross-in-Tray function: 
+minhφ 0B0001⌊⃦⃦⃦⃦⃦sinφ1sinφ2exp⌊⃦⃦⃦⃦⃦100 ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+φ2
+1φ2
+2⇓
+π⃦⃦⃦⃦⃦⌋⃦⃦⃦⃦⃦1⌋0B1
+C
+sBtBφ 10C10
+(20)    
+c) Holder Table function: minhφ ⃦⃦⃦⃦⃦sinφ1cosφ2exp⌊⃦⃦⃦⃦⃦1 ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+φ2
+1φ2
+2̅
+π⃦⃦⃦⃦⃦⌋⃦⃦⃦⃦⃦C
+sBtBφ 10C10(21))   
+The results for the Griewank function are presented in Fig. 4. Fig. 4(a, 
+b) shows that the function has multiple closely spaced local minima with 
+a single global minimum. Fig. 4(c, d) shows the SSO optimization using 
+hyper-rectangle and hyper-ellipse as shapes of admissible subsets. It is 
+seen that these shapes fail to capture the region containing the optimal 
+design due to the presence of multiple local minima. Next, the iSSO is 
+implemented, where the Voronoi cells selected at the first and last 
+iteration are shown in Fig. 4(e, f). It is observed that at the first iteration, 
+the selected Voronoi cells effectively capture both the local and global 
+minima and in the subsequent iterations, the selected cells are more 
+concentrated near the global minimum. The region selected at the last 
+iteration captures the optimal global solution. 
+The Cross-in-Tray function has a relatively complex design space 
+compared to the Griewank function. Fig. 5(a, b) shows multiple local 
+and global minima. Minimization by using SSO is demonstrated in Fig. 5 
+(c, d). It is found that both the hyper-rectangle and hyper-ellipse are 
+trapped around any one of the global minima. At the same time, the iSSO 
+is able to capture the regions that include all of the global minima, as 
+Fig. 5.Results for the Cross-in-Tray function.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+8seen in Fig. 5(e, f). 
+The Holder Table function has multiple local and global minima; the 
+global minima are placed at the boundary of the design space, as shown 
+in Fig. 6(a, b). Once again, it is seen that both the hyper-rectangle and 
+hyper-ellipse are trapped around any of one of the global minima, and 
+on the other hand, the iSSO is able to capture the regions that include all 
+of the global minima, as seen in Fig. 6(e, f). 
+The results from the three examples demonstrate that the proposed 
+iSSO is able to capture the regions containing the optimal solution 
+effectively. 
+Next, the statistics of the results of 50 independent runs, both for SSO 
+and iSSO are presented in Table 1. It also includes the results obtained by 
+using state-of-the-art approaches, such as the Genetic algorithm, particle 
+swarm optimization, and the gradient based optimization approach 
+(interior-point algorithm). The proposed iSSO outperforms all other 
+approaches as more successes in determining the optimal solution are 
+observed in all three optimization problems. It is also seen that both SSO 
+and iSSO result in a similar value of volume reduction for the same 
+stopping criterion; however, with SSO, the number of iterations required 
+to achieve this volume reduction are relatively higher. The proposed 
+approach outperformed the state-of-the-art approaches, as indicated by 
+the number of successes. These examples demonstrate that the main 
+advantage of implementing Voronoi tessellation is an effective explo -
+ration of the design space. 
+Next, the performance of the proposed "double sort algorithm" for 
+selecting the optimal subset is studied by using the above-mentioned three functions. Fig. 7 shows the value of HI1for the 50 indepen -
+dent simulation runs, which is estimated by implementing the proposed 
+double sort algorithm and by using the Genetic algorithm. It can be 
+noted that for each run, the HI1values obtained using the proposed 
+double sort algorithm and Genetic algorithm are well matched, thereby 
+confirming the adequacy of the proposed double sort algorithm. 
+At any iteration of iSSO, new samples are simulated using the seed 
+samples. In the proposed approach, the volume of the Voronoi cells 
+corresponding to the seed and new samples is greater than the volume of 
+the Voronoi cells corresponding only to the seed samples. Fig. 8 shows 
+this change in volume Vseedsnew Vseeds
+Vseeds due to the creation of Voronoi cells 
+at any generation of iSSO using the procedure mentioned in Section 3.4. 
+The increase is observed to be small which further reduces with an in-
+crease in the iteration number. It is also observed that the increase in 
+volume decreases with an increase in sample size at each iteration and 
+increases with an increase in the dimension of the problem. 
+4.2. Robust design optimization of the tuned mass damper 
+This example considers a stochastic design problem involving a 
+Tuned Mass Damper (TMD) attached to a Single Degree of Freedom 
+(SDOF) system. The problem is taken from [48] and is shown in Fig. 9. 
+In this problem, the system is excited by a white noise signal with a 
+mean zero and unit variance. The performance measure is the variance 
+of the displacement of the system σ2
+xs. The mass mS, stiffness kS, and 
+Fig. 6.Results for the Holder Table function.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+9damping cS of the system are taken as uncertain parameters, following 
+independent Gaussian distribution. The mean value of these variables is 
+taken to be 105 kg, 107 N/m, and 4 ×104 Ns/m respectively. To account 
+for uncertainty, the c.o.v value for each variable taken is 0.05. The 
+frequency ratio βωTEωS and damping ξT of the TMD are considered 
+design parameters. The TMD has a mass ratio, mT/ms, of 0.10. The parameters mT,ωT,andωS are, in order, the mass of the TMD, the natural 
+frequency of the TMD (⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+kTEmT⇓
+), and the natural frequency of the 
+structure (⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+ksEms⇓
+). The optimization problem is written as: 
+minimize B
+φ∃ΦCφ∃ΦEθhθCφCφEθ√(
+σ2
+xsθCφ φ)⇑2
+C (22) Table 1 
+Statistics of optimization results for multimodal deterministic optimization problems.  
+Example SSO iSSO GA* PSO* GBA*   
+Hyper-Rectangle Hyper-Ellipse     
+Griewank NF 30 32 5 38 35 47  
+NS 20 18 45 12 15 3  
+BV 0 0 0 0 0 0  
+WV 0.1028 0.1161 0.0270 0.0296 0.0232 0.0296  
+AV 0.0190 0.0292 0.0110 0.0094 0.0057 0.0173  
+c.o.v 1.1663 1.0168 0.5137 0.9603 0.8763 0.05971  
+FE 22,702 15,223 12,426 3385 1432 33  
+Gen 7 5 4 N/A  
+VR 94.025 84.79 93.56    
+Cross-In-Tray NF 50 50 1 50 50 50  
+NS 0 0 49 0 0 0  
+BV  2.0576  2.0626  2.0624  2.0626  2.0626  2.0626  
+WV  2.0472  2.0481  2.0260  2.0626  2.0626  1.3853  
+AV  2.0527  2.0621  2.0522  2.0626  2.0626  1.7360  
+c.o.v 0.0133 0.001 0.0042 0 0 0.0977  
+FE 27,563 21,595 9982 3178 933 32  
+Gen 9 7 3 N/A  
+VR 99.89 98.95 88.71    
+Holder-Table NF 50 50 3 50 50 50  
+NS 0 0 47 0 0 0  
+BV  19.2085  17.5025  19.2085  19.2085  19.2085  19.2085  
+WV  18.8916  1.1419  17.3030  9.5047  15.1402  1.1831  
+AV  19.0916  8.432  18.8798  19.0144  18.9745  6.5493  
+c.o.v 0.0025 0.3898 0.0182 0.0722 0.0443 0.8358  
+FE 40,700 24,684 18,142 3413 988 30  
+Gen 13 8 6 N/A  
+VR 99.59 99.42 94.37    
+GA genetic algorithm, PSO particle swarm optimization, GBA gradient-based optimization approach, NF no. of. failure, NS no. of. success, BV best value, 
+WV worst value, AV average value, c.o.v coefficient of variation, FE no. of. function evaluations, Gen generations, VR volume reduction percentage, * 
+efficiently applicable only for deterministic problems. 
+Fig. 7.Comparison of double sort algorithm and Genetic algorithm results.  
+Fig. 8.Percentage change in volume at each iSSO iteration.  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+10where, 
+0B01≼β≼1B5C0B01≼ξT≼1B0C0≼φ≼1000B (23) 
+Table 2 presents the optimal design parameter values as well as the 
+objective function value that solve the optimization problem in (22). 
+Results obtained using SSO, Sample Average Approximation (SAA), and iSSO are shown. SAA is applied with a sample size of 103, as mentioned 
+in [43]. The results demonstrate that iSSO is effective in locating the 
+optimal solution. SSO implemented with hyper-ellipse gives an optimal 
+solution but has a higher computational cost. 
+4.3. 120-bars truss structure 
+The third example involves minimizing the mean of the compliance 
+of a 120-bar linear elastic truss structure shown in Fig. 10 under the 
+weight constraint W ≼15, 000kg. Because of structural symmetry, 
+design parameters corresponding to the cross-sectional areas of elements 
+are divided into seven groups, each with a minimum area of 10 4 m2. 
+The Young ’s modulus for the bar groups are assumed as uncorrelated 
+normal random variables with mean values equal to 210 GPa and the c. 
+o.v equal to 0.10 respectively. The density of the material is 7971.89 kg/ 
+m3. The dome is subjected to concentrated vertical loads acting down -
+ward at the top node, normally distributed with a mean equal to 60 kN 
+and c.o.v equal to 0.20. In addition, the mass of bars is concentrated at 
+the nodes. The problem is taken from [48]. 
+Table 3 presents the best of 10 independent run results obtained with 
+SSO and iSSO. Once again, the SSO and iSSO solutions agree well, 
+thereby demonstrating the effectiveness of the proposed approach. At 
+the same time, the number of function evaluations is substantially less in 
+the case of iSSO, indicating the efficiency of the proposed approach. 
+4.4. Reliability-based design of a base isolated structure 
+This example, adapted from [49], involves the reliability-based 
+Fig. 9.TMD attached to a SDOF system [48].  
+Table 2 
+Variance minimization of TMD-structure.  
+Method Admissible Subset shape Design parameters EθhθCφCφ
+(×10 16 mm4) FE NS NF 
+β ξT 
+SSO [48] Hyper-Rectangle 0.551 0.623 41.324 7433 0 50 
+Hyper-Ellipse 0.749 0.221 1.7586 8245 34 16 
+SAA N/A 0.749 0.221 1.7587 3 ×106 4 46 
+iSSO Voronoi tessellation 0.749 0.221 1.7586 6198 50 0  
+Fig. 10.120-bar dome truss structure [48].  
+Table 3 
+Results for the 120 bars truss structure.  
+Method Design parameters μg√φ∗
+(Nm) σ2
+g√φ∗
+(Nm)2 FE 
+A1 
+(cm2) A2 
+(cm2) A3 
+(cm2) A4 
+(cm2) A5 
+(cm2) A6 
+(cm2) A7 
+(cm2) 
+SSO [48] 47.2 67.5 42.7 9.4 30.1 55.6 13.1 242.3 5294.2 54,700 
+SAA 47.3 68.3 40.7 10.5 30.3 49.5 14.8 243.5 5407.4 3 ×106 
+iSSO 48.1 66.4 42.6 8.5 31.4 56.5 12.5 242.8 5317.2 14,937  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+11optimization of a base-isolation system attached to a 10-story building 
+as shown in Fig. 11. This optimization problem includes maximizing the 
+reliability of the base-isolated structure which is performed by the 
+minimization of its failure probability and mathematically expressed as: 
+minimize B
+φ∃ΦPF†φEθIFφCθ̃
+ΘIFφCθpφCθdθC (24)  
+where, IF(φ,θ) is the function that indicates failure, and it equals 1 when 
+the system fails, i.e., when unacceptable performance occurs. Notably, 
+in this problem h(φ, θ) IF(φ,θ). 
+The 10-story building is considered as a shear structure with un-
+certain inter-story stiffness and damping. Each story has a total mass of 
+207 ton. The inter-story stiffness ki of all stories are parameterized by ki 
+}kiθiCi1C…C10 where the most probable values of the inter-story 
+stiffness are }ki[687.1, 613.1, 540.1, 481.1, 421.7, 353.7, 286.6, 
+225.6, 184.5, 104.5] MN/m. The entity θi is a set of non-dimensional 
+uncertain variables that are considered to be correlated Gaussian vari-
+ables with a unit mean value }θi1C⊥i and a covariance matrix defined 
+as: 
+E[
+θi }θi 
+θj }θj)]
+0B22exp[
+ j i2\
+22]
+B (25) 
+The damping ratios are considered independent Gaussian variables 
+with mean values of 0.025 and c.o.v of 0.10 for all modes. The Kanai- 
+Tajimi model is used to simulate the ground excitation modelled as a 
+filtered white noise process, with the power spectral density function 
+given as: 
+SωS0ω4
+g4ζ2
+gω2
+gω2
+(
+ω2
+g ω2)2
+4ζ2
+gω2
+gω2C (26)  S0σ2
+ω2ζg
+πωg(
+4ζ2
+g1)m2⎡
+s3C (27)  
+where, ωg, ζgand σω are the resonant frequency, damping, and RMS of the 
+acceleration input of the filter, respectively. These are also considered 
+uncertain variables with mean values of [2πrad/s, 0.5, 0.2g] and a c.o.v 
+equal to 0.20. The non-stationarity of the excitation is modeled by 
+multiplying the filter output with the envelope function as: 
+etλ3tλ1exp λ2tC (28)  
+with parameters λ1 1.25, λ2 0.2 and λ3 0.353 chosen to simulate 
+strong earthquake excitation for a duration of 40 s with a sampling time 
+of 0.02 s. The base-isolation system considered is a lead–rubber bilinear 
+isolator with an additional viscous damper. The base has a 247-ton mass. 
+The design parameters φ for the base isolation structure system are the 
+stiffness before yielding Kprand after yielding Kp, the yield force is Fy, 
+and the damping coefficient cd. The reader may refer to [39,50] for 
+additional details regarding the base isolation structure system adopted 
+in this study. 
+Failure is indicated when any of the normalized base displacements 
+or inter-story drifts exceeds unity. The normalization constants are 0.5 m 
+and 0.033 m respectively. The design interval for each variable is 
+specified as Kpr [50, 600] MN/m, Fy [1, 8] MN, Kp [5, 60] MN/m, 
+and cd [0.1, 10]MNs/m. In this example, iSSO and SSO are imple -
+mented with six number of iterations. 
+Table 4 shows the optimization results for the best 10 independent 
+simulation runs. The comparison of the results obtained using SSO, SAA 
+(with a sample size of 103), and iSSO shows that the optimal design 
+obtained using the proposed approach iSSO is in good agreement. The 
+failure probability of the structure is reduced from 0.95 (without the 
+base isolation system) to 0.0326 after installing the optimally designed 
+base isolation system. 
+5.Conclusion 
+This study attempts to provide an optimization approach called 
+"iSSO", which is an improved version of SSO, primarily for stochastic 
+optimization problems while it retains utility for deterministic optimi -
+zation problems as well. Two novel ideas are introduced in this study: 
+first, a better characterization of the design space is offered by parti-
+tioning the design space into non-overlapping subregions using Voronoi 
+Fig. 11.(left) 10-story base isolated shear model, and (right) force-deformation of bilinear isolator [49].  
+Table 4 
+Base isolation structure system optimization results (best of 10 independent 
+runs).  
+Method Design parameters (φ*) Failure 
+probability 
+PF(φ*) Kpr (MN/ 
+m) Fy 
+(MN) Kp (MN/ 
+m) cd (MNs/ 
+m) 
+SSO  
+[39] 425.33 1.20 15.52 6.54 0.0340 
+SAA 414.68 1.16 16.15 6.26 0.0324 
+iSSO 418.34 1.11 15.88 7.08 0.0366  M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+12tessellation which improves the effectiveness and efficiency of the pro-
+posed iSSO considerably in comparison to SSO. Second, a novel "double 
+sort" approach is proposed, eliminating the need for optimization to 
+identify the subregions for the optimal design at each iSSO iteration. 
+Several mathematical and engineering design examples, including TMD, 
+120 bars truss structure, and base-isolated structure, are included in this 
+study to demonstrate the efficacy of the proposed iSSO. The results show 
+that the proposed iSSO effectively identifies the reduced design space for 
+complex design problems with multiple global and local minima. This is 
+attributable to the Voronoi tessellation, which eliminates the require -
+ment of the presumed admissible design space form to resemble the 
+contour of the original design. Voronoi tessellation enabled better 
+design space exploration, allowing multiple global minima scattered 
+throughout the design pace to be effectively identified. Due to the dis-
+cretization of the design space via Voronoi tessellation, computation 
+demand is significantly reduced as the number of function evaluations 
+for all examples is lower vis-a-vis the original SSO. Moreover, the novel 
+idea of the double sort approach achieves the requisite precision in 
+identifying the subregions for optimal solutions and makes iSSO 
+implementation simple and effective. 
+The applicability of the approach is dependent on the creation of the Voronoi cells. At present the methods available in the literation for 
+creating the Voronoi tessellation are computationally demanding when 
+considering problems of very high dimension. Future work will focus on 
+developing a method for creating the Voronoi tessellation in higher di-
+mensions, particularly those greater than ten. 
+CRediT authorship contribution statement 
+Mohd Aman Khalid: Investigation, Methodology, Formal analysis, 
+Software, Visualization, Writing – original draft. Sahil Bansal: 
+Conceptualization, Methodology, Supervision. 
+Declaration of Competing Interest 
+The authors declare that they have no known competing financial 
+interests or personal relationships that could have appeared to influence 
+the work reported in this paper. 
+Data availability 
+No data was used for the research described in the article.  
+Appendix-A: Voronoi Tessellation 
+Voronoi tessellation is a mathematical concept named after the Russian mathematician Georgy Voronoi. It is also known as the Voronoi diagram or 
+Dirichlet tessellation. A Voronoi tessellation of a set of points P in a plane is a partition of the plane into a set of non-overlapping convex polygons, with 
+each polygon including precisely one point of P and each point in a polygon being closer to its associated point in P than to any other point in P. Each 
+polygon is referred to as a Voronoi cell or a Dirichlet region. The boundary of each cell is constituted of points that are equidistant to two or more 
+points in P. Fig. 12 shows the Voronoi diagram in a two-dimensional design space.
+Fig. 12.Voronoi diagram in 2-dimensional space.  
+There are several efficient algorithms for creating Voronoi diagrams. One such basic algorithm is to start with a set of points and then compute the 
+Voronoi cells by dividing the space into regions based on the distance to the nearest point. The Bowyer-Watson algorithm [51], which generates a 
+Delaunay triangulation in any number of dimensions, can be applied while creating a Voronoi diagram. The Delaunay triangulation is a triangulation 
+of the point in which no point falls within the circumcircle of any triangle. The polygon generated by the intersection of the half-planes defined by the 
+edges of the Delaunay triangles enclosing the point is therefore obtained as the Voronoi cell of a point. 
+It can be summarized that Voronoi tessellation is a powerful mathematical concept that aids in dividing space into regions based on the distance to 
+a set of points. Voronoi tessellation finds widespread applications in areas such as image processing [52], spatial topology analysis [53], and 
+microstructure study [52]. The MATLAB command "Voronoin " from the "Parallel Computing Toolbox " [54] has been used in this study to create the 
+Voronoi cells. 
+References 
+[1]Marti K. Stochastic optimization methods. Berlin: Springer; 2008 . 
+[2]Tsompanakis Y, Lagaros ND, Papadrakakis M. Structural design optimization 
+considering uncertainties. CRC Press; 2008 . 
+[3]Khalid MA, Bansal S, Ramamohan V. An augmented formulation for robust design 
+optimization of structures using stochastic simulation method. Res Eng Des 2023; 
+34:179 –200. https://doi.org/10.1007/s00163-022-00405-z . [4]Meng Z, Li G, Wang X, Sait SM, Rıza A. A comparative study of metaheuristic 
+algorithms for reliability ‑ based design optimization problems. Arch Comput 
+Methods Eng 2021;28:1853 –69. https://doi.org/10.1007/s11831-020-09443-z . 
+[5]Abualigah L, Elaziz MA, Khasawneh AM, Alshinwan M. Meta-heuristic 
+optimization algorithms for solving real-world mechanical engineering design 
+problems : a comprehensive survey, applications, comparative analysis, and 
+results. Neural Comput Appl 2022;34:4081 –110. https://doi.org/10.1007/s00521- 
+021-06747-4 . 
+[6]Katebi J, Shoaei M, Nguyen S, Trung T, Khorami M. Developed comparative 
+analysis of metaheuristic optimization algorithms for optimal active control of M.A. Khalid and S. Bansal                                                                                                                                                                                                                   Advances in Engineering Software 188 (2024) 103568
+13structures. Eng Comput 2020;36:1539 –58. https://doi.org/10.1007/s00366-019- 
+00780-7 . 
+[7]Alorf A. Engineering applications of artificial intelligence a survey of recently 
+developed metaheuristics and their comparative analysis. Eng Appl Artif Intell 
+2023;117:105622. https://doi.org/10.1016/j.engappai.2022.105622 . 
+[8]Kirsch U. Structural optimization: fundamentals and applications. Springer-Verlag; 
+2012 . 
+[9]Floudas CA, Pardalos PA. Encyclopedia of optimization. Springer; 2008 . 
+[10] Kiureghian AD, Ditlevsen O. Aleatory or epistemic? Does it matter? Struct Saf 
+2009;31:105 –12. https://doi.org/10.1016/j.strusafe.2008.06.020 . 
+[11] Schu eller GI, Jensen HA. Computational methods in optimization considering 
+uncertainties - an overview. Comput Methods Appl Mech Eng 2008;198:2 –13. 
+https://doi.org/10.1016/j.cma.2008.05.004 . 
+[12] Schneider J, Kirkpatrick S. Stochastic optimization. Springer; 2007 . 
+[13] Do B, Ohsaki M. A random search for discrete robust design optimization of linear- 
+elastic steel frames under interval parametric uncertainty. Comput Struct 2021; 
+249:106506. https://doi.org/10.1016/j.compstruc.2021.106506 . 
+[14] Asadpoure A, Tootkaboni M, Guest JK. Robust topology optimization of structures 
+with uncertainties in stiffness - application to truss structures. Comput Struct 2011. 
+https://doi.org/10.1016/j.compstruc.2010.11.004 . 
+[15] Doltsinis I, Kang Z. Robust design of structures using optimization methods. 
+Comput Methods Appl Mech Eng 2004;193:2221 –37. https://doi.org/10.1016/j. 
+cma.2003.12.055 . 
+[16] Carneiro G, das N, Ant˘onio CC. Dimensional reduction applied to the reliability- 
+based robust design optimization of composite structures. Compos Struct 2021; 
+255. https://doi.org/10.1016/j.compstruct.2020.112937 . 
+[17] An H, Youn BD, Kim HS. Reliability-based design optimization of laminated 
+composite structures under delamination and material property uncertainties. Int J 
+Mech Sci 2021. https://doi.org/10.1016/j.ijmecsci.2021.106561 . 
+[18] Li Z, Duan LB, Cheng AG, Yao ZP, Chen T, Yao W. Lightweight and crashworthiness 
+design of an electric vehicle using a six-sigma robust design optimization method. 
+Eng Optim 2019. https://doi.org/10.1080/0305215X.2018.1521396 . 
+[19] Gholinezhad H, Torabi SH. Reliability-based multidisciplinary design optimization 
+of an underwater vehicle including cost analysis. J Mar Sci Technol 2021. https:// 
+doi.org/10.1007/s00773-021-00804-2 . 
+[20] Lee KH, Park GJ. Robust optimization considering tolerances of design variables. 
+Comput Struct 2001;79:77 –86. https://doi.org/10.1016/S0045-7949(00)00117-6 . 
+[21] Anderson TV, Mattson CA. Propagating skewness and kurtosis through engineering 
+models for low-cost, meaningful, nondeterministic design. J Mech Des Trans 
+ASME. 2012. https://doi.org/10.1115/1.4007389 . 
+[22] Zhou Q, Wang Y, Choi SK, Jiang P, Shao X, Hu J, Shu L. A robust optimization 
+approach based on multi-fidelity metamodel. Struct Multidiscip Optim 2018. 
+https://doi.org/10.1007/s00158-017-1783-4 . 
+[23] Wang GG, Shan S. Review of metamodeling techniques in support of engineering 
+design optimization. J Mech Des Trans ASME. 2007;129:370 –80. https://doi.org/ 
+10.1115/1.2429697 . 
+[24] Chatterjee T, Chakraborty S, Chowdhury R. A critical review of surrogate assisted 
+robust design optimization. Arch Comput Methods Eng 2019;26:245 –74. https:// 
+doi.org/10.1007/s11831-017-9240-5 . 
+[25] Chatterjee T, Friswell MI, Adhikari S, Chowdhury R. A global two-layer meta- 
+model for response statistics in robust design optimization. Eng Optim 2021. 
+https://doi.org/10.1080/0305215X.2020.1861262 . 
+[26] Guo X, Zhao X, Zhang W, Yan J, Sun G. Multi-scale robust design and optimization 
+considering load uncertainties. Comput Methods Appl Mech Eng 2015;283: 
+994–1009. https://doi.org/10.1016/j.cma.2014.10.014 . 
+[27] Jerez DJ, Jensen HA, Beer M. Reliability-based design optimization of structural 
+systems under stochastic excitation: an overview. Mech Syst Signal Process 2022. 
+https://doi.org/10.1016/j.ymssp.2021.108397 . 
+[28] Li W, Gao L, Xiao M. Multidisciplinary robust design optimization under parameter 
+and model uncertainties. Eng Optim 2020;52:426 –45. https://doi.org/10.1080/ 
+0305215X.2019.1590564 . 
+[29] Beyer HG, Sendhoff B. Robust optimization - a comprehensive survey. Comput 
+Methods Appl Mech Eng 2007;196:3190 –218. https://doi.org/10.1016/j. 
+cma.2007.03.003 . 
+[30] Motta R, de S, Afonso SMB. An efficient procedure for structural reliability-based 
+robust design optimization. Struct Multidiscip Optim 2016;54:511 –30. https://doi. 
+org/10.1007/s00158-016-1418-1 . [31] Yildiz AR. Comparison of evolutionary-based optimization algorithms for 
+structural design optimization. Eng Appl Artif Intell 2013;26:327 –33. https://doi. 
+org/10.1016/j.engappai.2012.05.014 . 
+[32] Beck AT, Gomes WJDS. A comparison of deterministic, reliability-based and risk- 
+based structural optimization under uncertainty. Probab Eng Mech 2012;28:18 –29. 
+https://doi.org/10.1016/j.probengmech.2011.08.007 . 
+[33] Acar, E., Bayrak, G., Jung, Y., Lee, I., Ramu, P., Ravichandran, S.S.: Modeling, 
+analysis, and optimization under uncertainties: a review, (2021). 10.1007/s001 
+58-021-03026-7 . 
+[34] Georghiou A, Kuhn D, Wiesemann W. The decision rule approach to optimization 
+under uncertainty: methodology and applications. Comput Manag Sci 2019. 
+https://doi.org/10.1007/s10287-018-0338-5 . 
+[35] Braydi O, Lafon P, Younes R. Study of uncertainties and objective function 
+modeling effects on probabilistic optimization results. ASCE ASME J Risk 
+Uncertain Eng Syst Part B Mech Eng 2019. https://doi.org/10.1115/1.4044152 . 
+[36] Liu WS, Cheung SH. Reliability based design optimization with approximate failure 
+probability function in partitioned design space. Reliab Eng Syst Saf 2017;167: 
+602–11. https://doi.org/10.1016/j.ress.2017.07.007 . 
+[37] Chiralaksanakul A, Mahadevan S. First-order approximation methods in reliability- 
+based design optimization. J Mech Des Trans ASME 2005. https://doi.org/ 
+10.1115/1.1899691 . 
+[38] Doltsinis I, Kang Z, Cheng G. Robust design of non-linear structures using 
+optimization methods. Comput Methods Appl Mech Eng 2005;194:1779 –95. 
+https://doi.org/10.1016/j.cma.2004.02.027 . 
+[39] Taflanidis AA, Beck JL. Stochastic Subset Optimization for optimal reliability 
+problems. Probab Eng Mech 2008. https://doi.org/10.1016/j. 
+probengmech.2007.12.011 . 
+[40] Au SK, Beck JL. Estimation of small failure probabilities in high dimensions by 
+subset simulation. Probab Eng Mech 2001;16:263 –77. https://doi.org/10.1016/ 
+S0266-8920(01)00019-4 . 
+[41] Jia GF, Taflanidis AA. Non-parametric stochastic subset optimization for optimal- 
+reliability design problems. Comput Struct 2013;126:86 –99. https://doi.org/ 
+10.1016/j.compstruc.2012.12.009 . 
+[42] Taflanidis AA. Stochastic subset optimization incorporating moving least squares 
+response surface methodologies for stochastic sampling. Adv Eng Softw 2012;44: 
+3–14. https://doi.org/10.1016/j.advengsoft.2011.07.009 . 
+[43] Khalid MA, Bansal S. Framework for robust design optimization of tuned mass 
+dampers by stochastic subset optimization. Int J Struct Stab Dyn 2023;23. https:// 
+doi.org/10.1142/S0219455423501559 . 
+[44] Au SK. Reliability-based design sensitivity by efficient simulation. Comput Struct 
+2005;83:1048 –61. 
+[45] Taflanidis AA, Beck JL. An efficient framework for optimal robust stochastic system 
+design using stochastic simulation. Comput Methods Appl Mech Eng 2008. https:// 
+doi.org/10.1016/j.cma.2008.03.029 . 
+[46] Robert CP, Casella G. Monte carlo statistical methods. New York, NY: Springer; 
+2004 . 
+[47] Li HS. Subset simulation for unconstrained global optimization. Appl Math Model 
+2011;35:5108 –20. https://doi.org/10.1016/j.apm.2011.04.023 . 
+[48] Khalid MA, Bansal S, Ramamohan V. An augmented formulation for robust design 
+optimization of structures using stochastic simulation method. Res Eng Des 2022. 
+https://doi.org/10.1007/s00163-022-00405-z . 
+[49] Taflanidis AA, Beck JL. An efficient framework for optimal robust stochastic system 
+design using stochastic simulation. Comput Methods Appl Mech Eng 2008;198: 
+88–101. https://doi.org/10.1016/j.cma.2008.03.029 . 
+[50] Kandemir EC, Mortazavi A. Optimization of seismic base isolation system using a 
+fuzzy reinforced swarm intelligence. Adv Eng Softw 2022;174:103323. https://doi. 
+org/10.1016/j.advengsoft.2022.103323 . 
+[51] Rebay S. Efficient unstructured mesh generation by means of delaunay 
+triangulation and Bowyer-Watson algorithm. J Comput Phys 1993;106:125 –38. 
+[52] Wade N, Graham-Brady L. Estimating microstructural feature distributions from 
+image data using a Bayesian framework. J Microsc 2023:1 –16. https://doi.org/ 
+10.1111/jmi.13184 . 
+[53] Duan X, Li L, Ge Y, Liu B. Exact Voronoi diagram for topographic spatial analysis. 
+GIScience Remote Sens 2023;60. https://doi.org/10.1080/ 
+15481603.2023.2171703 . 
+[54] MATLAB and parallel computing toolbox release. Natick, Massachusetts, United 
+States: The Mathworks, Inc.; 2021 . M.A. Khalid and S. Bansal                                                                                                                                                                                                                   
