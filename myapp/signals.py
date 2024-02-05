@@ -17,27 +17,43 @@ def update_article_index(sender, instance, **kwargs):
 
     article_document.save(index=custom_index_name)
 """
+import json
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch(['localhost:9200'])  # Elasticsearch client
+
 @receiver(post_save)
 def update_document(sender, **kwargs):
-    app_label = sender._meta.app_label
-    model_name = sender._meta.model_name
-    instance = kwargs['instance']
+    # Your existing code to update documents in Elasticsearch
+    
+    # Serialize index configuration
+    index_config = es.indices.get_settings(index='article')
+    index_mapping = es.indices.get_mapping(index='article')
 
-    if app_label == 'articles':
-        if model_name == 'article':
-            instances = instance.article.all()
-            for _instance in instances:
-                registry.update(_instance)
-
+    # Write index configuration to JSON file
+    with open('index.json', 'w') as json_file:
+        json.dump({'settings': index_config, 'mappings': index_mapping}, json_file)
 
 @receiver(post_delete)
 def delete_document(sender, **kwargs):
-    app_label = sender._meta.app_label
-    model_name = sender._meta.model_name
-    instance = kwargs['instance']
+    # Your existing code to delete documents in Elasticsearch
+    
+    # Serialize index configuration
+    index_config = es.indices.get_settings(index='article')
+    index_mapping = es.indices.get_mapping(index='article')
 
-    if app_label == 'articles':
-        if model_name == 'article':
-            instances = instance.article.all()
-            for _instance in instances:
-                registry.update(_instance)
+    # Write index configuration to JSON file
+    with open('../../Database/index_config.json', 'w') as json_file:
+        json.dump({'settings': index_config, 'mappings': index_mapping}, json_file)
+
+
+
+# Import the required module
+import json
+
+# Load and parse the JSON file
+with open('../index.json') as f:
+    indexes_config = json.load(f)
+
+# Access index configurations
+articles_index_config = indexes_config.get('articles')
