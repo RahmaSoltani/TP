@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'TP.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': '../Base de données/db.sqlite3',
     },
 
 }
@@ -106,7 +106,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bdd',
+        'NAME': 'bdd2',
         'USER': 'RAHMA',
         'PASSWORD': 'tpigl2023',
         'HOST': 'localhost',

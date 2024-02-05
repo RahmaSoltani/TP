@@ -12,9 +12,12 @@ PUBLISHER_INDEX.settings(
 class ArticleDocument(Document):
     id=fields.IntegerField()
     title = fields.TextField()
+    treated = fields.BooleanField()
+
     abstract = fields.TextField()
     pdf_url = fields.KeywordField()
     date_created = fields.DateField()
+    text = fields.TextField()
 
     authors = fields.NestedField(properties={
         'name': fields.TextField(),

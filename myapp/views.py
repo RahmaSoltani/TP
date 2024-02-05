@@ -10,6 +10,7 @@ from rest_framework import status
 from .serializers import PDFTxtExtractionSerializer
 from .serializers import InfoExtractor
 from django_elasticsearch_dsl_drf.filter_backends import (
+    DefaultOrderingFilterBackend,
     CompoundSearchFilterBackend,
     OrderingFilterBackend,
 )
@@ -74,7 +75,7 @@ class RefrenceViewSet(viewsets.ModelViewSet):
 def check_favorite_article(request, user_id, article_id):
     try:
         user = models.Utilisateur.objects.get(pk=user_id)
-        article = Article.objects.get(pk=article_id)
+        article = documents.ArticleDocument.objects.get(pk=article_id)
         is_favorite = article in user.favoris.all()
         return Response({'is_favorite': is_favorite})
     except models.Utilisateur.DoesNotExist:
@@ -84,7 +85,6 @@ def check_favorite_article(request, user_id, article_id):
 
     except Article.DoesNotExist:
         return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
-    
 @api_view(['PATCH'])
 def update_article(request, id):
     try:
@@ -106,19 +106,22 @@ def update_article(request, id):
         # Update the many-to-many fields if provided in the request data
         if 'authors_names' in data:
             authors_names = data['authors_names'].split(',')
-            authors = models.Author.objects.filter(name__in=authors_names)
+            authors = [models.Author.objects.get_or_create(name=name.strip())[0] for name in authors_names]
             article.authors.set(authors)
+        
         if 'institutions_names' in data:
             institutions_names = data['institutions_names'].split(',')
-            institutions = models.Institution.objects.filter(name__in=institutions_names)
+            institutions = [models.Institution.objects.get_or_create(name=name.strip())[0] for name in institutions_names]
             article.institutions.set(institutions)
+        
         if 'keywords_names' in data:
             keywords_names = data['keywords_names'].split(',')
-            keywords = models.Keyword.objects.filter(name__in=keywords_names)
+            keywords = [models.Keyword.objects.get_or_create(name=name.strip())[0] for name in keywords_names]
             article.keywords.set(keywords)
+        
         if 'references_citations' in data:
             references_citations = data['references_citations'].split(',')
-            references = models.Reference.objects.filter(citation__in=references_citations)
+            references = [models.Reference.objects.get_or_create(citation=citation.strip())[0] for citation in references_citations]
             article.references.set(references)
         
         # Save the updated article
@@ -127,21 +130,24 @@ def update_article(request, id):
         return Response({'message': 'Article updated successfully'}, status=status.HTTP_200_OK)
     except Article.DoesNotExist:
         return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class ArticleDocViewSet(DocumentViewSet):  
      document = ArticleDocument
      serializer_class = serializers.ArticleDocumentSerializer
      filter_backends = [
-        OrderingFilterBackend,
-        CompoundSearchFilterBackend,
+     
+    DefaultOrderingFilterBackend,
+    CompoundSearchFilterBackend,
+    OrderingFilterBackend,
+
      ]
      search_fields = (
-        '^title',
-        '^abstract',
-        '^authors.name',
-        '^institutions.name',
-        '^keywords.name',
-        '^references,citation',
-
+ 'title',
+    'abstract',
+    'authors__name',          
+    'institutions__name',     
+    'keywords__name',         
+    'references__citation',  
 
      )
      filter_backends = [DjangoFilterBackend]
@@ -200,20 +206,19 @@ from django.db.models import Q
 
 @api_view(['GET'])
 def article_details(request, id):
-    try:
-        article = Article.objects.get(pk=id)
+        article = ArticleDocument.get(id=id)
         
         # Extract authors' names
-        authors_names = ', '.join([author.name for author in article.authors.all()])
+        authors_names = ', '.join([author.name for author in article.authors])
         
         # Extract institutions' names
-        institutions_names = ', '.join([institution.name for institution in article.institutions.all()])
+        institutions_names = ', '.join([institution.name for institution in article.institutions])
         
         # Extract references' citations
-        references_citations = ', '.join([reference.citation for reference in article.references.all()])
+        references_citations = ', '.join([reference.citation for reference in article.references])
         
         # Extract keywords' names
-        keywords_names = ', '.join([keyword.name for keyword in article.keywords.all()])
+        keywords_names = ', '.join([keyword.name for keyword in article.keywords])
         
         # Add other attributes here
         
@@ -224,13 +229,11 @@ def article_details(request, id):
             'institutions_names': institutions_names,
             'references_citations': references_citations,
             'keywords_names': keywords_names,
-            'text':article.text,
+            # No 'text' field in the ArticleDocument definition, remove it
             # Add other attributes as needed
         }
-        
         return Response(response_data)
-    except Article.DoesNotExist:
-        return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def login(request):
@@ -282,43 +285,46 @@ def search_and_filter_articles(request):
     word = request.data.get('word', '')
     filter_field = request.data.get('filter_field', None)
 
-    articles = Article.objects.all()
+    search = ArticleDocument.search()
 
     if word:
-        # Filter articles based on the given word in multiple fields
         if filter_field:
             # Filter based on the specified field if provided
+            if filter_field == 'treated':
+                search = search.filter('term', **{'treated': 'false'})
             if filter_field == 'keywords':
-                articles = articles.filter(keywords__name__icontains=word)
+                search = search.filter('term', **{'keywords.name': word})
             elif filter_field == 'institutions':
-                articles = articles.filter(institutions__name__icontains=word)
+                search = search.filter('term', **{'institutions.name': word})
             elif filter_field == 'authors':
-                articles = articles.filter(authors__name__icontains=word)
+                search = search.filter('term', **{'authors.name': word})
             else:
                 # Invalid filter field provided, fallback to searching in all fields
-                articles = articles.filter(
-                    Q(title__icontains=word) |
-                    Q(abstract__icontains=word) |
-                    Q(keywords__name__icontains=word) |
-                    Q(institutions__name__icontains=word) |
-                    Q(authors__name__icontains=word)
-                )
+                search = search.query('multi_match', query=word, fields=['title', 'abstract', 'authors.name', 'institutions.name', 'keywords.name'])
         else:
-            # Filter based on the given word in all searchable fields
-            articles = articles.filter(
-                Q(title__icontains=word) |
-                Q(abstract__icontains=word) |
-                Q(keywords__name__icontains=word) |
-                Q(institutions__name__icontains=word) |
-                Q(authors__name__icontains=word)
-            )
+            # Apply query based on the given word in all searchable fields
+            search = search.query('multi_match', query=word, fields=['title', 'abstract', 'authors.name', 'institutions.name', 'keywords.name'])
 
-    # Serialize the filtered articles
-    serializer = serializers.ArticleSerializer(articles, many=True)
-    return Response(serializer.data)
+    # Execute the search
+    response = search.execute()
 
-    # Return the serialized data as a JSON response
-    return Response(serializer.data)
+    # Extract relevant information from the search results
+    results = []
+    for hit in response:
+        result = {
+            'id':hit.id,
+            'title': hit.title,
+            'abstract': hit.abstract,
+            'authors_names': ', '.join([author.name for author in hit.authors]),  # Accessing the 'name' property of each author
+            'institutions_names': ', '.join([institution.name for institution in hit.institutions]),  # Accessing the 'name' property of each institution
+            'keywords_names': ', '.join([keyword.name for keyword in hit.keywords]),  # Accessing the 'name' property of each keyword
+            'text':hit.text,
+            'pdf_url':hit.pdf_url,
+        }
+        results.append(result)
+
+    return Response(results)
+
 
 
 from django.http import JsonResponse
