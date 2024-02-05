@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'TP.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '../Base de données/db.sqlite3',
+        'NAME': "../Database/db.sqlite3",
     },
 
 }
